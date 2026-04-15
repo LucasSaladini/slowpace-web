@@ -12,5 +12,25 @@ model User {
   password  String
   createdAt DateTime @default(now())
 
+  hobbies Hobby[]
+
   @@map("users")
+}
+
+model Hobby {
+  id        String    @id @default(uuid())
+  name      String
+  color     String?
+  createdAt DateTime  @default(now())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  sessions  Session[]
+}
+
+model Session {
+  id       String   @id @default(uuid())
+  duration Int
+  create   DateTime @default(now())
+  hobbyId  String
+  hobby    Hobby    @relation(fields: [hobbyId], references: [id])
 }
