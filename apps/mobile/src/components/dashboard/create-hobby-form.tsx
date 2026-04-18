@@ -28,7 +28,7 @@ export function CreateHobbyForm({ onSuccess }: CreateHobbyFormProps) {
       onSuccess()
     } catch (err) {
       toast.error("Não foi possível criar", {
-        description: "Tente novamente em alguns instantes.",
+        description: `Tente novamente em alguns instantes. ${err}`,
       })
     } finally {
       setIsSubmitting(false)

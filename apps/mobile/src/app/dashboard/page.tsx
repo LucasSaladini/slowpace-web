@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { hobbyService, DashboardStats, StardustHobby } from '../services/hobby-service'
 import { StatsSummary } from '@/components/dashboard/stats-summary'
 import { CreateHobbyForm } from '@/components/dashboard/create-hobby-form'
-import { Loader2, Trash2, Clock, PlusCircle } from 'lucide-react'
+import { Loader2, Trash2, PlusCircle } from 'lucide-react'
 import { toast } from 'sonner'
 
 export default function DashboardPage() {
@@ -16,7 +16,7 @@ export default function DashboardPage() {
       const data = await hobbyService.getStats()
       setStats(data)
     } catch (error) {
-      toast.error("Erro ao sincronizar dados")
+      toast.error(`Erro ao sincronizar dados. ${error}`)
     } finally {
       setLoading(false)
     }
@@ -33,7 +33,7 @@ export default function DashboardPage() {
       toast.success(`+${minutes} min registrados!`)
       loadData()
     } catch (err) {
-      toast.error("Erro ao registrar tempo")
+      toast.error(`Erro ao registrar tempo. ${err}`)
     }
   }
 
@@ -44,7 +44,7 @@ export default function DashboardPage() {
       toast.success("Hobby removido")
       loadData()
     } catch (err) {
-      toast.error("Erro ao deletar")
+      toast.error(`Erro ao deletar. ${err}`)
     }
   }
 
@@ -96,7 +96,7 @@ export default function DashboardPage() {
           </div>
           <CreateHobbyForm onSuccess={loadData} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {stats?.stardustData.map((hobby: any) => (
+            {stats?.stardustData.map((hobby: StardustHobby) => (
               <div 
                 key={hobby.id} 
                 className="group p-5 bg-zinc-900/40 border border-zinc-800/50 rounded-2xl flex items-center justify-between hover:border-zinc-700 transition-all"

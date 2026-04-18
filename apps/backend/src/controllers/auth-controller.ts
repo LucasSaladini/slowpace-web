@@ -43,9 +43,16 @@ export const authController = {
                 return reply.status(401).send({ message: "E-mail ou senha incorretos." });
             }
 
-            const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET || 'slowpace-secret', { expiresIn: '24h' });
+            const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET || 'slowpace-secret');
 
-            return reply.status(200).send({ token, user: { id: user.id, email: user.email } });
+            return reply.setCookie('slowpace.token', token, {
+                path: '/',
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax'
+            })
+                .status(200)
+                .send({ user: { id: user.id, email: user.email } });
         } catch (err) {
             return reply.status(500).send({ message: "Erro interno no servidor." });
         }
