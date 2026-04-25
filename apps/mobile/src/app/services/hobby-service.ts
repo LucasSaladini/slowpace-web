@@ -21,6 +21,7 @@ export interface StardustHobby {
   id: string;
   name: string;
   color: string;
+  frequency: string;
   totalMinutes: number;
 }
 
@@ -33,6 +34,7 @@ export interface DashboardStats {
 export interface CreateHobbyData {
   name: string;
   color: string;
+  frequency: string;
 }
 
 export const hobbyService = {
