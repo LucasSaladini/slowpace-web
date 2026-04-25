@@ -23,6 +23,7 @@ export const hobbyController = {
         id: hobby.id,
         name: hobby.name,
         color: hobby.color || '#71717a',
+        frequency: hobby.frequency,
         totalMinutes: hobby.sessions.reduce((acc, s) => acc + s.duration, 0)
       }));
 
@@ -37,12 +38,12 @@ export const hobbyController = {
   },
 
   async create(request: FastifyRequest, reply: FastifyReply) {
-    const { name, color } = request.body as any;
+    const { name, color, frequency } = request.body as any;
     const userId = request.user.sub;
 
     try {
       const hobby = await prisma.hobby.create({
-        data: { name, color, userId }
+        data: { name, color, frequency: frequency || "daily", userId }
       });
       return reply.status(201).send(hobby);
     } catch (error) {
@@ -51,7 +52,7 @@ export const hobbyController = {
   },
   async update(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
-    const { name, color } = request.body as any;
+    const { name, color, frequency } = request.body as any;
     const userId = request.user.sub;
 
     try {
