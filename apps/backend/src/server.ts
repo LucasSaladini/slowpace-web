@@ -14,15 +14,20 @@ app.register(fastifyCookie, {
 
 app.register(cors, {
     origin: (origin, cb) => {
-      const allowedOrigins = ['http://localhost:3000', process.env.FRONTEND_URL];
-      if (!origin || allowedOrigins.includes(origin)) {
+      const frontendUrl = process.env.FRONTEND_URL?.replace(/\/$/, "");
+      const allowedOrigins = ['http://localhost:3000', frontendUrl];
+
+      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
         cb(null, true);
         return;
       }
+      
+      console.log(`CORS bloqueado para: ${origin}. Esperado: ${frontendUrl}`);
       cb(new Error('Not allowed by CORS'), false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 });
 
 app.register(authRoutes, { prefix: '/auth' });
