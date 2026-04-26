@@ -3,7 +3,7 @@ import axios from "axios";
 import { AuthData } from "../lib/auth-schema";
 
 const api = axios.create({
-    baseURL: 'http://localhost:3333'
+    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://slowpace-web.onrender.com'
 });
 
 export const authService = {

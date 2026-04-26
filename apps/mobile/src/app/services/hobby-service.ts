@@ -2,7 +2,7 @@ import axios from "axios";
 import { parseCookies } from "nookies";
 
 const api = axios.create({
-    baseURL: 'http://localhost:3333',
+    baseURL: 'https://slowpace-web.onrender.com',
     withCredentials: true
 });
 
