@@ -1,16 +1,19 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-export function proxy(request: NextRequest) {
+export function middleware(request: NextRequest) {
     const token = request.cookies.get('slowpace.token')?.value
+    const { pathname } = request.nextUrl
 
-    const isAuthPage = request.nextUrl.pathname === '/'
-    const isDashboardPage = request.nextUrl.pathname.startsWith('/dashboard')
-    if (!token && isDashboardPage) {
-        return NextResponse.redirect(new URL('/', request.url))
+    const isLoginPage = pathname === '/login'
+    const isRootPage = pathname === '/'
+    const isDashboardPage = pathname.startsWith('/dashboard')
+
+    if (!token && (isDashboardPage || isRootPage)) {
+        return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    if (token && isAuthPage) {
+    if (token && (isLoginPage || isRootPage)) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
@@ -18,5 +21,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/', '/dashboard/:path*'],
+    matcher: ['/', '/dashboard/:path*', '/login'],
 }
