@@ -1,5 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { prisma } from '../db/database';
+import { getRandomPhrase } from '../utils/encouragement';
 
 export const hobbyController = {
   async getStats(request: FastifyRequest, reply: FastifyReply) {
@@ -80,15 +81,40 @@ export const hobbyController = {
   },
 
   async addSession(request: FastifyRequest, reply: FastifyReply) {
-    const { hobbyId, duration } = request.body as { hobbyId: string, duration: number };
+    const { hobbyId, duration, content, createdAt } = request.body as { 
+      hobbyId: string;
+      duration: number;
+      content?: string;
+      createdAt?: string;
+    };
 
     try {
       const session = await prisma.session.create({
-        data: { hobbyId, duration }
+        data: {
+          hobbyId,
+          duration,
+          content,
+          ...(createdAt && { create: new Date(createdAt) })
+        }
       });
-      return reply.status(201).send(session);
+
+      const phrase = getRandomPhrase();
+
+      return reply.status(201).send({ session, message: phrase });
     } catch (error) {
       return reply.status(500).send({ message: "Erro ao registrar tempo." });
     }
+  },
+
+  async getHistory(request: FastifyRequest, reply: FastifyReply) {
+    const userId = request.user.sub;
+    const history = await prisma.session.findMany({
+      where: { hobby: { userId } },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: { hobby: { select: { name: true, color: true } } }
+    });
+
+    return reply.send(history);
   }
 };

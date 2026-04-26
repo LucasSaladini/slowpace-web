@@ -109,7 +109,7 @@ export function CreateHobbyForm({ onSuccess, editingHobby, onCancel, currentCoun
             disabled={isSubmitting || !name.trim() || isLimitReached}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
               editingHobby ? 'bg-emerald-500 text-emerald-950' : 'bg-zinc-100 text-zinc-950'
-            } disabled:opacity-50`}
+            } disabled:opacity-50 cursor-pointer`}
           >
             {isSubmitting ? <Loader2 className="animate-spin" size={14} /> : editingHobby ? <Save size={14} /> : <Plus size={14} />}
             {editingHobby ? 'Salvar' : 'Adicionar'}
@@ -125,7 +125,7 @@ export function CreateHobbyForm({ onSuccess, editingHobby, onCancel, currentCoun
                 key={p.color}
                 type="button"
                 onClick={() => setColor(p.color)}
-                className={`w-4 h-4 rounded-full transition-all ${color === p.color ? 'ring-2 ring-white ring-offset-2 ring-offset-zinc-950 scale-125' : 'opacity-40 hover:opacity-100'}`}
+                className={`w-4 h-4 rounded-full transition-all cursor-pointer ${color === p.color ? 'ring-2 ring-white ring-offset-2 ring-offset-zinc-950 scale-125' : 'opacity-40 hover:opacity-100'}`}
                 style={{ backgroundColor: p.color }}
               />
             ))}

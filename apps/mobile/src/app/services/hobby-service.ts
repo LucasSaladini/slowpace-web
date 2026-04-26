@@ -37,6 +37,24 @@ export interface CreateHobbyData {
   frequency: string;
 }
 
+export interface SessionData {
+  hobbyId: string;
+  duration: number;
+  content?: string;
+  createdAt?: Date;
+}
+
+export interface Session {
+  id: string;
+  duration: number;
+  content?: string;
+  createdAt: string;
+  hobby: {
+    name: string;
+    color: string;
+  }
+}
+
 export const hobbyService = {
   async getStats(): Promise<DashboardStats> {
     const response = await api.get('/api/hobbies/stats');
@@ -57,8 +75,13 @@ export const hobbyService = {
     await api.delete(`/api/hobbies/${id}`);
   },
 
-  async addSession(hobbyId: string, duration: number) {
-    const response = await api.post('/api/hobbies/sessions', { hobbyId, duration });
+  async addSession(data: SessionData) {
+    const response = await api.post('/api/hobbies/sessions', data );
+    return response.data;
+  },
+
+  async getHistory(): Promise<Session[]> {
+    const response = await api.get('api/hobbies/sessions/history');
     return response.data;
   }
 };

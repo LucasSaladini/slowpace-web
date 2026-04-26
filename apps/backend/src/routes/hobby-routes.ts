@@ -26,4 +26,5 @@ export async function hobbyRoutes(app: FastifyInstance) {
     app.put('/:id', hobbyController.update);
     app.delete('/:id', hobbyController.delete);
     app.post('/sessions', hobbyController.addSession);
+    app.get('/sessions/history', hobbyController.getHistory);
 }
