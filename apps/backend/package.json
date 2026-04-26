@@ -7,6 +7,9 @@
     "dev": "tsx watch src/server.ts",
     "test": "vitest run",
     "test:watch": "vitest",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "db:migrate:deploy": "npx prisma migrate deploy",
     "db:migrate": "npx prisma migrate dev",
     "db:studio": "npx prisma studio"
   },
