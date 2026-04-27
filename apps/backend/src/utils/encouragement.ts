@@ -9,7 +9,7 @@ export const ENCOURAGMENT_PHRASES = {
         "Silencie o ruído externo: sua prática é sua verdade.",
         "Não há pressa onde existe presença.",
         "Um passo lento ainda é um passo à frente.",
-        "Sua constelação rilha mais forte com a sua constância."
+        "Sua constelação brilha mais forte com a sua constância."
     ],
     reflective: [
         "O que essa prática ensinou ao seu silêncio hoje?",

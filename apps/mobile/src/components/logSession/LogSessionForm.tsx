@@ -30,7 +30,8 @@ export function LogSessionForm({ hobbyId, hobbyName, onSuccess, onCancel }: LogS
 
             toast(hobbyName, {
                 description: message,
-                icon: <Sparkles className="text-amer-400" size={16} />
+                icon: <Sparkles className="text-amer-400" size={16} />,
+                duration: 12000
             });
 
             onSuccess();
