@@ -143,3 +143,9 @@
   0%, 100% { transform: translateY(0px); }
   50% { transform: translateY(-15px); }
 }
+
+.lucide {
+  flex-shrink: 0;
+  min-width: 1em;
+  min-height: 1em;
+}

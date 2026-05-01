@@ -37,16 +37,25 @@ function ActionIcon({ onClick, icon, label, variant, hideUntilHover }: ActionIco
       <TooltipTrigger>
         <button
           onClick={onClick}
-          className={`p-2 text-zinc-500 rounded-lg transition-all cursor-pointer ${variants[variant]} ${
-            hideUntilHover ? "opacity-0 group-hover:opacity-100" : ""
-          }`}
+          type="button"
+          aria-label={label}
+          className={`
+            p-2 text-zinc-500 rounded-lg transition-all cursor-pointer 
+            flex items-center justify-center flex-shrink-0
+            ${variants[variant]} 
+            ${hideUntilHover ? "opacity-0 group-hover:opacity-100 focus:opacity-100" : "opacity-100"}
+          `}
         >
-          {icon}
+          <span className="flex items-center justify-center w-5 h-5 min-w-[20px] min-h-[20px] flex-shrink-0">
+            {icon}
+          </span>
         </button>
       </TooltipTrigger>
       <TooltipContent 
         side="top" 
-        className={variant === 'rose' ? "bg-rose-950 text-rose-200 border-rose-900" : "bg-zinc-800 text-zinc-100 border-zinc-700"}
+        className={variant === 'rose' 
+          ? "bg-rose-950 text-rose-200 border-rose-900" 
+          : "bg-zinc-800 text-zinc-100 border-zinc-700"}
       >
         <p>{label}</p>
       </TooltipContent>
