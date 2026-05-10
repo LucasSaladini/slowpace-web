@@ -32,7 +32,7 @@ export function CreateHobbyForm({ onSuccess, editingHobby, onCancel, currentCoun
     if (editingHobby) {
       setName(editingHobby.name)
       setColor(editingHobby.color)
-      frequency: setFrequency(editingHobby.frequency)
+      setFrequency(editingHobby.frequency)
     } else {
       setName('')
       setColor(QUIET_MORNING_PALETTE[0].color)
@@ -53,6 +53,10 @@ export function CreateHobbyForm({ onSuccess, editingHobby, onCancel, currentCoun
         await hobbyService.create({ name, color, frequency })
         toast.success("Hobby iniciado com sucesso")
       }
+
+      setName('')
+      setColor(QUIET_MORNING_PALETTE[0].color)
+      setFrequency('daily')
       
       onSuccess()
       onCancel()
