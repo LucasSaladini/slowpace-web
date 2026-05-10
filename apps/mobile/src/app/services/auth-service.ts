@@ -3,7 +3,10 @@ import axios from "axios";
 import { AuthData } from "../lib/auth-schema";
 
 const api = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL || 'https://slowpace-web.onrender.com'
+    baseURL: process.env.NODE_ENV === 'development'
+        ? 'http://localhost:3333'
+        : (process.env.NEXT_PUBLIC_API_URL || 'https://slowpace-web.onrender.com'),
+    withCredentials: true
 });
 
 export const authService = {
@@ -35,5 +38,6 @@ export const authService = {
 
     logout() {
         destroyCookie(undefined, 'slowpace.token');
+        window.location.href = '/login';
     }
 }

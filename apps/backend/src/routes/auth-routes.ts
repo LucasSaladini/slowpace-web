@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../db/database';
 import { signUpSchema } from '../schemas/auth-schema';
+import { authMiddleware } from '../middleware/auth-middleware';
+import { togglePauseMode } from '../_actions/user-settings';
 
 export async function authRoutes(app: FastifyInstance) {
     app.post('/signup', async (request, reply) => {
@@ -69,6 +71,17 @@ export async function authRoutes(app: FastifyInstance) {
             });
         } catch (error) {
             return reply.status(500).send({ message: "Erro ao realizar login." });
+        }
+    });
+
+    app.patch('/settings/pause', { preHandler: [authMiddleware] }, async (request, reply) => {
+        try {
+            const userId = request.user.sub;
+            const result = await togglePauseMode(userId);
+
+            return reply.send(result);
+        } catch (err) {
+            return reply.status(500).send({ message: 'Erro ao processar modo pausa' });
         }
     });
 }

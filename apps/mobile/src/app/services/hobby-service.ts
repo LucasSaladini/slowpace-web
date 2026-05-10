@@ -2,7 +2,9 @@ import axios from "axios";
 import { parseCookies } from "nookies";
 
 const api = axios.create({
-    baseURL: 'https://slowpace-web.onrender.com',
+    baseURL: process.env.NODE_ENV === 'development'
+        ? 'http://localhost:3333'
+        : 'https://slowpace-web.onrender.com',
     withCredentials: true
 });
 
@@ -29,6 +31,7 @@ export interface DashboardStats {
   totalHours: number;
   totalMinutes: number;
   stardustData: StardustHobby[];
+  isPaused: boolean;
 }
 
 export interface CreateHobbyData {
@@ -81,7 +84,12 @@ export const hobbyService = {
   },
 
   async getHistory(): Promise<Session[]> {
-    const response = await api.get('api/hobbies/sessions/history');
+    const response = await api.get('/api/hobbies/sessions/history');
+    return response.data;
+  },
+
+  async togglePause(): Promise<{ isPaused: boolean }> {
+    const response = await api.patch('/api/hobbies/settings/pause', {});
     return response.data;
   }
 };
