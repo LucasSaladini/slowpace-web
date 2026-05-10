@@ -72,11 +72,16 @@ export function CreateHobbyForm({ onSuccess, editingHobby, onCancel, currentCoun
   return (
     <form 
       onSubmit={handleSubmit} 
-      className={`flex flex-col gap-4 p-5 border transition-all duration-500 ${
+      className={`flex flex-col gap-4 p-5 border transition-all duration-500 rounded-2xl ${
         editingHobby 
-          ? 'bg-zinc-800/30 border-zinc-600 ring-1 ring-zinc-700' 
-          : 'bg-zinc-900/50 border-zinc-800'
-      } rounded-2xl ${isLimitReached ? 'opacity-60 grayscale' : ''}`}
+          ? 'ring-1 ring-zinc-700/50' 
+          : ''
+      } ${isLimitReached ? 'opacity-60 grayscale' : ''}`}
+      style={{ 
+        backgroundColor: editingHobby ? 'var(--bg-card)' : 'var(--bg-card)', 
+        borderColor: 'var(--border)',
+        opacity: isLimitReached ? 0.6 : 1
+      }}
     >
       <div className="flex flex-wrap items-center gap-4">
         <div className="flex-1 min-w-[200px]">
@@ -86,16 +91,18 @@ export function CreateHobbyForm({ onSuccess, editingHobby, onCancel, currentCoun
             placeholder={isLimitReached ? "Limite de 5 hobbies atingido" : "Qual novo hábito quer cultivar?"}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full bg-transparent border-none focus:ring-0 text-zinc-100 placeholder:text-zinc-600 text-sm"
+            className="w-full bg-transparent border-none focus:ring-0 text-sm"
+            style={{ color: 'var(--text-main)' }}
           />
         </div>
-        <div className="flex items-center gap-2 px-3 border-l border-zinc-800">
-          <Calendar size={14} className="text-zinc-500" />
+        <div className="flex items-center gap-2 px-3 border-l" style={{ borderColor: 'var(--border)' }}>
+          <Calendar size={14} style={{ color: 'var(--text-muted)' }} />
           <select 
             value={frequency}
             onChange={(e) => setFrequency(e.target.value)}
             disabled={isLimitReached}
-            className="bg-transparent border-none text-xs text-zinc-400 focus:ring-0 cursor-pointer"
+            className="bg-transparent border-none text-xs focus:ring-0 cursor-pointer"
+            style={{ color: 'var(--text-muted)' }}
           >
             <option value="daily">Diário</option>
             <option value="weekly">Semanal</option>
@@ -104,7 +111,7 @@ export function CreateHobbyForm({ onSuccess, editingHobby, onCancel, currentCoun
         </div>
         <div className="flex items-center gap-2 ml-auto">
           {editingHobby && (
-            <button type="button" onClick={onCancel} className="p-2 text-zinc-500 hover:text-zinc-300">
+            <button type="button" onClick={onCancel} className="p-2 transition-colors" style={{ color: 'var(--text-muted)' }}>
               <X size={16} />
             </button>
           )}
@@ -121,15 +128,15 @@ export function CreateHobbyForm({ onSuccess, editingHobby, onCancel, currentCoun
         </div>
       </div>
       {!isLimitReached && (
-        <div className="flex items-center gap-3 pt-2 border-t border-zinc-900">
-          <span className="text-[9px] text-zinc-600 uppercase tracking-[0.2em]">Escolha a Aura</span>
+        <div className="flex items-center gap-3 pt-2 border-t" style={{ borderColor: 'var(--border)' }}>
+          <span className="text-[9px] uppercase tracking-[0.2em]" style={{ color: 'var(--text-muted)' }}>Escolha a Aura</span>
           <div className="flex gap-2">
             {QUIET_MORNING_PALETTE.map((p) => (
               <button
                 key={p.color}
                 type="button"
                 onClick={() => setColor(p.color)}
-                className={`w-4 h-4 rounded-full transition-all cursor-pointer ${color === p.color ? 'ring-2 ring-white ring-offset-2 ring-offset-zinc-950 scale-125' : 'opacity-40 hover:opacity-100'}`}
+                className={`w-4 h-4 rounded-full transition-all cursor-pointer ${color === p.color ? 'ring-2 ring-white ring-offset-2 scale-125' : 'opacity-40 hover:opacity-100'}`}
                 style={{ backgroundColor: p.color }}
               />
             ))}

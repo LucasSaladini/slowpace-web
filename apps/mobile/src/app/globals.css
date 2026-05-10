@@ -137,6 +137,57 @@
   h1, h2, h3, .font-display {
     @apply font-display tracking-tight;
   }
+
+:root, [data-theme='soft-dark'] {
+    --bg-app: #09090b;
+    --bg-card: #18181b;
+    --bg-header: #18181b;
+    --text-main: #f4f4f5;
+    --text-muted: #a1a1aa;
+    --accent: #facc15;
+    --border: #27272a;
+
+    --background: var(--bg-app);
+    --foreground: var(--text-main);
+    --card: var(--bg-card);
+    --card-foreground: var(--text-main);
+    --muted: #27272a;
+    --muted-foreground: var(--text-muted);
+  }
+
+  [data-theme='light'] {
+    --bg-app: #fafafa;
+    --bg-card: #ffffff;
+    --bg-header: #ffffff;
+    --text-main: #18181b;
+    --text-muted: #52525b;
+    --accent: #3b82f6;
+    --border: #e4e4e7;
+
+    --background: var(--bg-app);
+    --foreground: var(--text-main);
+    --card: var(--bg-card);
+    --card-foreground: var(--text-main);
+    --muted: #f4f4f5;
+    --muted-foreground: var(--text-muted);
+  }
+
+  [data-theme='sepia'] {
+    --bg-app: #f4ecd8;
+    --bg-card: #ede0c4;
+    --bg-header: #ede0c4;
+    --text-main: #433422;
+    --text-muted: #6b5a46;
+    --accent: #967142;
+    --border: #d6c5a0;
+
+    --background: var(--bg-app);
+    --foreground: var(--text-main);
+    --card: var(--bg-card);
+    --card-foreground: var(--text-main);
+    --muted: #e5d9bd;
+    --muted-foreground: var(--text-muted);
+  }
 }
 
 @keyframes float {
