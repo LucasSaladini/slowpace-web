@@ -7,6 +7,11 @@ export const hobbyController = {
     const userId = request.user.sub;
 
     try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { isPaused: true }
+      });
+
       const hobbies = await prisma.hobby.findMany({
         where: { userId },
         include: {
@@ -31,7 +36,8 @@ export const hobbyController = {
       return reply.send({
         totalHours: Math.floor(totalMinutes / 60),
         totalMinutes,
-        stardustData
+        stardustData,
+        isPaused: !!user?.isPaused
       });
     } catch (error) {
       return reply.status(500).send({ message: "Erro ao carregar estatísticas." });
@@ -81,12 +87,8 @@ export const hobbyController = {
   },
 
   async addSession(request: FastifyRequest, reply: FastifyReply) {
-    const { hobbyId, duration, content, createdAt } = request.body as { 
-      hobbyId: string;
-      duration: number;
-      content?: string;
-      createdAt?: string;
-    };
+    const { hobbyId, duration, content, createdAt } = request.body as any;
+    const userId = request.user.sub;
 
     try {
       const session = await prisma.session.create({
@@ -94,11 +96,18 @@ export const hobbyController = {
           hobbyId,
           duration,
           content,
-          ...(createdAt && { create: new Date(createdAt) })
+          ...(createdAt && { createdAt: new Date(createdAt) })
         }
       });
 
-      const phrase = getRandomPhrase();
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { isPaused: true }
+      });
+
+      const phrase = user?.isPaused 
+        ? "Registro salvo em silêncio. Continue descansando." 
+        : getRandomPhrase();
 
       return reply.status(201).send({ session, message: phrase });
     } catch (error) {
@@ -108,13 +117,49 @@ export const hobbyController = {
 
   async getHistory(request: FastifyRequest, reply: FastifyReply) {
     const userId = request.user.sub;
-    const history = await prisma.session.findMany({
-      where: { hobby: { userId } },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-      include: { hobby: { select: { name: true, color: true } } }
-    });
 
-    return reply.send(history);
-  }
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { isPaused: true }
+      });
+
+      if (user?.isPaused) {
+        return reply.send([]); 
+      }
+
+      const history = await prisma.session.findMany({
+        where: { hobby: { userId } },
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        include: { hobby: { select: { name: true, color: true } } }
+      });
+
+      return reply.send(history);
+    } catch (error) {
+      return reply.status(500).send({ message: "Erro ao carregar histórico." });
+    }
+  },
+
+  async togglePause(request: FastifyRequest, reply: FastifyReply) {
+    const userId = request.user.sub;
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { isPaused: true }
+      });
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { isPaused: !user?.isPaused },
+        select: { isPaused: true }
+      });
+
+      return reply.send({ isPaused: updatedUser.isPaused });
+    } catch (error) {
+      console.error(error);
+      return reply.status(500).send({ message: "Erro ao alterar estado de pausa." });
+    }
+  },
 };

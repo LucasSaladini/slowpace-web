@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { hobbyService, DashboardStats, StardustHobby, Session } from '../services/hobby-service'
 import { StatsSummary } from '@/components/dashboard/stats-summary'
 import { CreateHobbyForm } from '@/components/dashboard/create-hobby-form'
-import { Loader2, Trash2, PlusCircle, Settings2 } from 'lucide-react'
+import { Loader2, Trash2, PlusCircle, Settings2, Coffee } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   Tooltip,
@@ -68,7 +68,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [editingHobby, setEditingHobby] = useState<StardustHobby | null>(null);
   const [loggingHobby, setLoggingHobby] = useState<StardustHobby | null>(null);
-  const [history, setHistory] = useState<Session[]>([])
+  const [history, setHistory] = useState<Session[]>([]);
+  const [isPaused, setIsPaused] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -78,6 +79,10 @@ export default function DashboardPage() {
       ])
       setStats(statsData)
       setHistory(historyData)
+
+      if (statsData && typeof statsData.isPaused === 'boolean') {
+        setIsPaused(statsData.isPaused);
+      }
     } catch (error) {
       toast.error(`Erro ao sincronizar dados. ${error}`)
     } finally {
@@ -88,6 +93,25 @@ export default function DashboardPage() {
   useEffect(() => {
     loadData()
   }, [loadData])
+
+  const handleTogglePause = async () => {
+    try {
+      const result = await hobbyService.togglePause();
+      setIsPaused(result.isPaused);
+      
+      if (result.isPaused) {
+        toast.success("Modo pausa ativado. Aproveite seu descanso.", {
+          icon: <Coffee className="h-4 w-4" />,
+        });
+      } else {
+        toast.success("Bem-vindo de volta ao seu cultivo.");
+      }
+      
+      loadData();
+    } catch (err) {
+      toast.error("Não foi possível alterar o estado de pausa.");
+    }
+  }
 
   const handleDeleteHobby = async (id: string) => {
     if (!confirm("Deseja remover este hobby? O tempo acumulado será perdido.")) return
@@ -110,9 +134,12 @@ export default function DashboardPage() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-zinc-950 relative">
         <Header />
-        <main className="min-h-screen bg-zinc-800 text-zinc-100 p-4 md:p-8 pb-24">
+        <main className={`
+          min-h-screen bg-zinc-800 text-zinc-100 p-4 md:p-8 pb-24 transition-all duration-1000 ease-in-out
+          ${isPaused ? "blur-xl sepia-[0.3] grayscale-[0.2] pointer-events-none select-none" : "blur-0"}
+        `}>
           <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-16">
             <div className="flex-1 space-y-12">
               <header>
@@ -216,20 +243,64 @@ export default function DashboardPage() {
                 <PracticeTimeline sessions={history} />
               </div>
             </aside>
-            {loggingHobby && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-md animate-in fade-in duration-300">
-                <div className="w-full max-w-md">
-                  <LogSessionForm
-                    hobbyId={loggingHobby.id}
-                    hobbyName={loggingHobby.name}
-                    onSuccess={loadData}
-                    onCancel={() => setLoggingHobby(null)}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </main>
+        {loggingHobby && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/60 backdrop-blur-md animate-in fade-in duration-300">
+            <div className="w-full max-w-md">
+              <LogSessionForm
+                hobbyId={loggingHobby.id}
+                hobbyName={loggingHobby.name}
+                onSuccess={loadData}
+                onCancel={() => setLoggingHobby(null)}
+              />
+            </div>
+          </div>
+        )}
+        {isPaused && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-auto"> 
+            <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" />
+            <div className="relative bg-zinc-900/80 backdrop-blur-2xl p-10 rounded-[3rem] border border-zinc-800/50 text-center space-y-4 shadow-2xl mx-4">
+              <p className="text-[10px] font-bold tracking-[0.4em] text-amber-500/80 uppercase">Modo Pausa Ativo</p>
+              <h2 className="text-zinc-100 text-xl font-extralight tracking-tight italic">
+                &quot;A pausa é parte da música.&quot;
+              </h2>
+              <button 
+                onClick={handleTogglePause}
+                className="mt-4 px-8 py-2 bg-zinc-100 text-zinc-900 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-amber-400 transition-all duration-300 shadow-lg cursor-pointer"
+              >
+                Retomar Cultivo
+              </button>
+            </div>
+          </div>
+        )}
+        <div className="fixed bottom-10 right-10 z-[100]">
+          <Tooltip>
+            <TooltipTrigger>
+              <button
+                onClick={handleTogglePause}
+                className={`
+                  group flex items-center gap-3 p-4 rounded-full shadow-2xl transition-all duration-500 cursor-pointer
+                  ${isPaused 
+                    ? "bg-amber-500 text-zinc-950 scale-110 rotate-12" 
+                    : "bg-zinc-900 text-zinc-100 hover:bg-zinc-800 border border-zinc-800"}
+                `}
+              >
+                <Coffee size={24} className={isPaused ? "animate-pulse" : ""} />
+                
+                <span className="text-[10px] font-bold uppercase tracking-[0.2em] max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 ease-in-out whitespace-nowrap">
+                  {isPaused ? "Retomar" : "Modo Pausa"}
+                </span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent 
+              side="left" 
+              className={isPaused ? "bg-amber-500 text-zinc-950 border-none" : "bg-zinc-800 text-zinc-100 border-zinc-700"}
+            >
+              <p>{isPaused ? "Retomar Cultivo" : "Pausar para descansar"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </div>
     </TooltipProvider>
   )
