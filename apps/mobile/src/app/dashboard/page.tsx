@@ -15,6 +15,7 @@ import {
 import { LogSessionForm } from '@/components/logSession/LogSessionForm'
 import { PracticeTimeline } from '@/components/practiceTimeline/PracticeTimeline'
 import { Header } from '@/components/header/Header'
+import { ThemeSwitcher } from '@/components/themeSwitcher/ThemeSwitcher'
 
 interface ActionIconProps {
   onClick: () => void;
@@ -40,11 +41,12 @@ function ActionIcon({ onClick, icon, label, variant, hideUntilHover }: ActionIco
           type="button"
           aria-label={label}
           className={`
-            p-2 text-zinc-500 rounded-lg transition-all cursor-pointer 
+            p-2 rounded-lg transition-all cursor-pointer 
             flex items-center justify-center flex-shrink-0
             ${variants[variant]} 
             ${hideUntilHover ? "opacity-0 group-hover:opacity-100 focus:opacity-100" : "opacity-100"}
           `}
+          style={{ color: 'var(--text-muted)' }}
         >
           <span className="flex items-center justify-center w-5 h-5 min-w-[20px] min-h-[20px] flex-shrink-0">
             {icon}
@@ -126,7 +128,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-zinc-950">
+      <div className="flex h-screen w-full items-center justify-center bg-[var(--bg-app)]">
         <Loader2 className="h-8 w-8 animate-spin text-zinc-700" />
       </div>
     )
@@ -134,28 +136,36 @@ export default function DashboardPage() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-zinc-950 relative">
+      <div className="min-h-screen relative transition-colors duration-700 ease-in-out"
+        style={{ backgroundColor: 'var(--bg-app)', color: 'var(--text-main)' }}>
         <Header />
+        <div className="fixed top-3 right-20 z-[2000] flex items-center justify-center">
+          <ThemeSwitcher />
+        </div>
         <main className={`
-          min-h-screen bg-zinc-800 text-zinc-100 p-4 md:p-8 pb-24 transition-all duration-1000 ease-in-out
+          min-h-screen p-4 md:p-8 pb-24 transition-all duration-1000 ease-in-out
           ${isPaused ? "blur-xl sepia-[0.3] grayscale-[0.2] pointer-events-none select-none" : "blur-0"}
         `}>
           <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-16">
             <div className="flex-1 space-y-12">
               <header>
-                <h1 className="text-xl font-light tracking-widest text-zinc-400 uppercase">
-                  SlowPace / <span className="text-zinc-100">Cultivo</span>
+                <h1 className="text-xl font-light tracking-widest uppercase" style={{ color: 'var(--text-main)' }}>
+                  SlowPace / <span style={{ opacity: 0.6 }}>Cultivo</span>
                 </h1>
               </header>
               <section className="space-y-6">
                 <div className="flex flex-col gap-1">
-                  <h2 className="text-[10px] font-bold tracking-[0.3em] text-zinc-500 uppercase">Sua Constelação</h2>
+                  <h2 className="text-[10px] font-bold tracking-[0.3em] uppercase" style={{ color: 'var(--text-muted)' }}>Sua Constelação</h2>
                   <StatsSummary totalMinutes={stats?.totalMinutes || 0} />
                 </div>
-                <div className="relative h-80 w-full bg-zinc-900/10 rounded-[2.5rem] border border-zinc-800/40 flex items-center justify-center overflow-hidden backdrop-blur-sm">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-800/20 via-transparent to-transparent opacity-50" />
+                <div 
+                  className="relative h-80 w-full rounded-[2.5rem] border transition-colors duration-700 flex items-center justify-center overflow-hidden backdrop-blur-sm"
+                  style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}
+                >
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-500/10 via-transparent to-transparent opacity-30" />
+                  
                   {stats?.stardustData.length === 0 ? (
-                    <p className="text-zinc-600 italic font-light">Seu céu ainda não possui estrelas...</p>
+                    <p className="opacity-40 italic font-light">Seu céu ainda não possui estrelas...</p>
                   ) : (
                     <div className="flex gap-12 p-8 flex-wrap justify-center items-center relative z-10">
                       {stats?.stardustData.map((hobby, index) => {
@@ -175,9 +185,8 @@ export default function DashboardPage() {
                                 filter: `blur(${blur}px)`, opacity: opacity
                               }}
                             />
-                            <div className="absolute -bottom-8 flex flex-col items-center opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-2 group-hover:translate-y-0">
-                              <span className="text-[10px] tracking-widest uppercase font-bold text-zinc-400 whitespace-nowrap">{hobby.name}</span>
-                              <span className="text-[9px] text-zinc-600">{Math.floor(hobby.totalMinutes / 60)}h acumuladas</span>
+                            <div className="absolute -bottom-8 flex flex-col items-center opacity-0 group-hover:opacity-100 transition-all duration-500">
+                                <span className="text-[10px] tracking-widest uppercase font-bold whitespace-nowrap" style={{ color: 'var(--text-muted)' }}>{hobby.name}</span>
                             </div>
                           </div>
                         );
@@ -187,8 +196,8 @@ export default function DashboardPage() {
                 </div>
               </section>
               <section className="space-y-6">
-                <div className="flex items-center justify-between border-b border-zinc-900 pb-4">
-                  <h2 className="text-sm font-medium text-zinc-400 tracking-wider uppercase">Seus Hábitos</h2>
+                <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--border)' }}>
+                  <h2 className="text-sm font-medium tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>Seus Hábitos</h2>
                 </div>
                 <CreateHobbyForm 
                   onSuccess={loadData} 
@@ -198,12 +207,16 @@ export default function DashboardPage() {
                 />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {stats?.stardustData.map((hobby) => (
-                    <div key={hobby.id} className="group p-5 bg-zinc-900/40 border border-zinc-800/50 rounded-2xl flex items-center justify-between hover:border-zinc-700 transition-all">
+                    <div 
+                      key={hobby.id} 
+                      className="group p-5 border rounded-2xl flex items-center justify-between transition-all"
+                      style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}
+                    >
                       <div className="flex items-center gap-4">
                         <div className="w-1.5 h-8 rounded-full" style={{ backgroundColor: hobby.color }} />
                         <div>
-                          <h3 className="text-zinc-200 font-medium text-sm">{hobby.name}</h3>
-                          <p className="text-[10px] text-zinc-500 font-light">
+                          <h3 className="font-medium text-sm" style={{ color: 'var(--text-main)' }}>{hobby.name}</h3>
+                          <p className="text-[10px] font-light" style={{ color: 'var(--text-muted)' }}>
                             {Math.floor(hobby.totalMinutes / 60)}h {hobby.totalMinutes % 60}m acumulados
                           </p>
                         </div>
@@ -235,10 +248,13 @@ export default function DashboardPage() {
                 </div>
               </section>
             </div>
-            <aside className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l border-zinc-900/50 pt-8 lg:pt-0 lg:pl-8">
+            <aside 
+              className="w-full lg:w-80 border-t lg:border-t-0 lg:border-l pt-8 lg:pt-0 lg:pl-8 transition-colors duration-700"
+              style={{ borderColor: 'var(--border)' }}
+            >
               <div className="sticky top-8 space-y-8">
-                <header className="flex items-center justify-between border-b border-zinc-900 pb-4">
-                  <h2 className="text-[10px] font-bold tracking-[0.3em] text-zinc-500 uppercase">Diário de Cultivo</h2>
+                <header className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--border)' }}>
+                  <h2 className="text-[10px] font-bold tracking-[0.3em] uppercase" style={{ color: 'var(--text-muted)' }}>Diário de Cultivo</h2>
                 </header>
                 <PracticeTimeline sessions={history} />
               </div>
@@ -260,9 +276,10 @@ export default function DashboardPage() {
         {isPaused && (
           <div className="fixed inset-0 z-[1000] flex items-center justify-center pointer-events-auto"> 
             <div className="absolute inset-0 bg-zinc-950/60 backdrop-blur-sm" />
-            <div className="relative bg-zinc-900/80 backdrop-blur-2xl p-10 rounded-[3rem] border border-zinc-800/50 text-center space-y-4 shadow-2xl mx-4">
+            <div className="relative backdrop-blur-2xl p-10 rounded-[3rem] border text-center space-y-4 shadow-2xl mx-4 transition-colors duration-700"
+              style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}>
               <p className="text-[10px] font-bold tracking-[0.4em] text-amber-500/80 uppercase">Modo Pausa Ativo</p>
-              <h2 className="text-zinc-100 text-xl font-extralight tracking-tight italic">
+              <h2 className="text-xl font-extralight tracking-tight italic" style={{ color: 'var(--text-main)' }}>
                 &quot;A pausa é parte da música.&quot;
               </h2>
               <button 

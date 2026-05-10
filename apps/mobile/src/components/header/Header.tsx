@@ -13,16 +13,18 @@ export function Header() {
     };
 
     return (
-        <header className="w-full bg-zinc-800 shadow-sm">
+        <header className="w-full shadow-sm border-b transition-colors duration-700" 
+            style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border)' }}>
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <span className="text-xl font-bold text-zinc-500 tracking-tight">
+                    <span className="text-xl font-bold tracking-tight" style={{ color: 'var(--text-main)' }}>
                         SlowPace
                     </span>
                 </div>
                 <button
                     onClick={handleLogout}
-                    className="px-4 py-2 text-sm font-medium text-zinc-500 rounded-md transition-all duration-200 border border-transparent hover:border-red-100 cursor-pointer"
+                    className="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 border border-transparent hover:border-zinc-500 cursor-pointer"
+                    style={{ color: 'var(--text-muted)' }}
                 >
                     Sair da conta
                 </button>
