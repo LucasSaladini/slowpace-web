@@ -32,6 +32,7 @@ export interface DashboardStats {
   totalMinutes: number;
   stardustData: StardustHobby[];
   isPaused: boolean;
+  hasSeenTour: boolean;
 }
 
 export interface CreateHobbyData {
@@ -91,5 +92,9 @@ export const hobbyService = {
   async togglePause(): Promise<{ isPaused: boolean }> {
     const response = await api.patch('/api/hobbies/settings/pause', {});
     return response.data;
+  },
+
+  async completeTour(): Promise<void> {
+    await api.patch('/api/hobbies/settings/tour');
   }
 };

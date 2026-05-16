@@ -9,7 +9,7 @@ export const hobbyController = {
     try {
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { isPaused: true }
+        select: { isPaused: true, hasSeenTour: true }
       });
 
       const hobbies = await prisma.hobby.findMany({
@@ -37,7 +37,8 @@ export const hobbyController = {
         totalHours: Math.floor(totalMinutes / 60),
         totalMinutes,
         stardustData,
-        isPaused: !!user?.isPaused
+        isPaused: !!user?.isPaused,
+        hasSeenTour: !!user?.hasSeenTour
       });
     } catch (error) {
       return reply.status(500).send({ message: "Erro ao carregar estatísticas." });
@@ -162,4 +163,20 @@ export const hobbyController = {
       return reply.status(500).send({ message: "Erro ao alterar estado de pausa." });
     }
   },
+
+  async completeTour(request: FastifyRequest, reply: FastifyReply) {
+    const userId = request.user.sub;
+
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: { hasSeenTour: true }
+      });
+
+      return reply.status(204).send();
+    } catch (error) {
+      console.log(error);
+      return reply.status(500).send({ message: "Erro ao atualizar estado do tour." });
+    }
+  }
 };
