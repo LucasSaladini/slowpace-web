@@ -16,6 +16,7 @@ import { LogSessionForm } from '@/components/logSession/LogSessionForm'
 import { PracticeTimeline } from '@/components/practiceTimeline/PracticeTimeline'
 import { Header } from '@/components/header/Header'
 import { ThemeSwitcher } from '@/components/themeSwitcher/ThemeSwitcher'
+import { OnboardingTour } from '@/components/onboarding/OnboardingTour'
 
 interface ActionIconProps {
   onClick: () => void;
@@ -72,6 +73,7 @@ export default function DashboardPage() {
   const [loggingHobby, setLoggingHobby] = useState<StardustHobby | null>(null);
   const [history, setHistory] = useState<Session[]>([]);
   const [isPaused, setIsPaused] = useState(false);
+  const [showTour, setShowTour] = useState(false);
 
   const loadData = useCallback(async () => {
     try {
@@ -79,6 +81,10 @@ export default function DashboardPage() {
         hobbyService.getStats(),
         hobbyService.getHistory()
       ])
+
+      if (statsData && statsData.hasSeenTour === false) {
+        setShowTour(true);
+      }
       setStats(statsData)
       setHistory(historyData)
 
@@ -136,6 +142,7 @@ export default function DashboardPage() {
 
   return (
     <TooltipProvider>
+      {showTour && <OnboardingTour onComplete={() => setShowTour(false)} />}
       <div className="min-h-screen relative transition-colors duration-700 ease-in-out"
         style={{ backgroundColor: 'var(--bg-app)', color: 'var(--text-main)' }}>
         <Header />

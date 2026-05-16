@@ -56,5 +56,16 @@ export const authController = {
         } catch (err) {
             return reply.status(500).send({ message: "Erro interno no servidor." });
         }
+    },
+
+    async completeTour(request: FastifyRequest, reply: FastifyReply) {
+        const userId = request.user.sub;
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: { hasSeenTour: true }
+        });
+
+        return reply.status(204).send();
     }
 };

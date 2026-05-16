@@ -28,4 +28,5 @@ export async function hobbyRoutes(app: FastifyInstance) {
     app.post('/sessions', hobbyController.addSession);
     app.get('/sessions/history', hobbyController.getHistory);
     app.patch('/settings/pause', hobbyController.togglePause);
+    app.patch('/settings/tour', hobbyController.completeTour);
 }
