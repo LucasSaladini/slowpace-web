@@ -27,31 +27,38 @@ interface ActionIconProps {
 
 function ActionIcon({ onClick, icon, label, variant, hideUntilHover }: ActionIconProps) {
   const variants = {
-    emerald: "hover:text-emerald-400 hover:bg-emerald-500/10",
-    blue: "hover:text-blue-400 hover:bg-blue-500/10",
-    rose: "hover:text-rose-400 hover:bg-rose-500/10",
-    zinc: "hover:text-zinc-300 hover:bg-zinc-800",
+    emerald: "text-emerald-500 hover:text-emerald-400 hover:bg-emerald-500/10",
+    blue: "text-blue-500 hover:text-blue-400 hover:bg-blue-500/10",
+    rose: "text-rose-500 hover:text-rose-400 hover:bg-rose-500/10",
+    zinc: "text-zinc-400 hover:text-zinc-300 hover:bg-zinc-800",
   };
 
   return (
     <Tooltip>
       <TooltipTrigger>
-        <button
-          onClick={onClick}
-          type="button"
+        <span
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick();
+          }}
+          role="button"
+          tabIndex={0}
           aria-label={label}
           className={`
             p-2 rounded-lg transition-all cursor-pointer 
             flex items-center justify-center flex-shrink-0
             ${variants[variant]} 
-            ${hideUntilHover ? "opacity-0 group-hover:opacity-100 focus:opacity-100" : "opacity-100"}
+            ${
+              hideUntilHover 
+                ? "opacity-100 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:focus:opacity-100" 
+                : "opacity-100"
+            }
           `}
-          style={{ color: 'var(--text-muted)' }}
         >
           <span className="flex items-center justify-center w-5 h-5 min-w-[20px] min-h-[20px] flex-shrink-0">
             {icon}
           </span>
-        </button>
+        </span>
       </TooltipTrigger>
       <TooltipContent 
         side="top" 
@@ -224,7 +231,7 @@ export default function DashboardPage() {
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-2 md:gap-1">
                         <ActionIcon 
                           onClick={() => setLoggingHobby(hobby)} 
                           icon={<PlusCircle size={18} />} 
