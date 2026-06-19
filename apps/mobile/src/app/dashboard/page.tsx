@@ -15,7 +15,6 @@ import {
 import { LogSessionForm } from '@/components/logSession/LogSessionForm'
 import { PracticeTimeline } from '@/components/practiceTimeline/PracticeTimeline'
 import { Header } from '@/components/header/Header'
-import { ThemeSwitcher } from '@/components/themeSwitcher/ThemeSwitcher'
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour'
 
 interface ActionIconProps {
@@ -146,9 +145,6 @@ export default function DashboardPage() {
       <div className="min-h-screen relative transition-colors duration-700 ease-in-out"
         style={{ backgroundColor: 'var(--bg-app)', color: 'var(--text-main)' }}>
         <Header />
-        <div className="fixed top-3 right-20 z-[2000] flex items-center justify-center">
-          <ThemeSwitcher />
-        </div>
         <main className={`
           min-h-screen p-4 md:p-8 pb-24 transition-all duration-1000 ease-in-out
           ${isPaused ? "blur-xl sepia-[0.3] grayscale-[0.2] pointer-events-none select-none" : "blur-0"}
