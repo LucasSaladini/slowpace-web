@@ -2,13 +2,13 @@
 
 import { authService } from '@/app/services/auth-service';
 import { useRouter } from 'next/navigation';
+import { ThemeSwitcher } from '../themeSwitcher/ThemeSwitcher';
 
 export function Header() {
     const router = useRouter();
 
     const handleLogout = () => {
         authService.logout();
-        
         router.push('/');
     };
 
@@ -21,13 +21,17 @@ export function Header() {
                         SlowPace
                     </span>
                 </div>
-                <button
-                    onClick={handleLogout}
-                    className="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 border border-transparent hover:border-zinc-500 cursor-pointer"
-                    style={{ color: 'var(--text-muted)' }}
-                >
-                    Sair da conta
-                </button>
+                <div className="flex items-center gap-4">
+                    <ThemeSwitcher />
+                    <button
+                        onClick={handleLogout}
+                        className="px-4 py-2 text-sm font-medium rounded-md transition-all duration-200 border border-transparent hover:border-zinc-500 cursor-pointer"
+                        style={{ color: 'var(--text-muted)' }}
+                    >
+                        Sair da conta
+                    </button>
+                </div>
+
             </div>
         </header>
     );
