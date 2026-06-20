@@ -16,6 +16,7 @@ import { LogSessionForm } from '@/components/logSession/LogSessionForm'
 import { PracticeTimeline } from '@/components/practiceTimeline/PracticeTimeline'
 import { Header } from '@/components/header/Header'
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour'
+import { FinanceContainer } from '@/components/finance/finance-container'
 
 interface ActionIconProps {
   onClick: () => void;
@@ -256,6 +257,12 @@ export default function DashboardPage() {
                     </div>
                   ))}
                 </div>
+              </section>
+              <section className="space-y-6 pt-4">
+                <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: 'var(--border)' }}>
+                  <h2 className="text-sm font-medium tracking-wider uppercase" style={{ color: 'var(--text-muted)' }}>Fluxo Financeiro</h2>
+                </div>
+                <FinanceContainer />
               </section>
             </div>
             <aside 

@@ -6,6 +6,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
 model User {
   id          String   @id @default(uuid())
   email       String   @unique
@@ -15,7 +20,8 @@ model User {
   pausedAt    DateTime?
   hasSeenTour Boolean  @default(false)
 
-  hobbies Hobby[]
+  hobbies       Hobby[]
+  transactions  Transaction[]
 
   @@map("users")
 }
@@ -38,4 +44,19 @@ model Session {
   createdAt DateTime @default(now())
   hobbyId   String
   hobby     Hobby    @relation(fields: [hobbyId], references: [id])
+}
+
+model Transaction {
+  id          String          @id @default(uuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  description String
+  amount      Int
+  type        TransactionType
+  category    String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId, createdAt])
+  @@map("transactions")
 }

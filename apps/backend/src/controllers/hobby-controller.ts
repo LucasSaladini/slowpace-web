@@ -175,7 +175,6 @@ export const hobbyController = {
 
       return reply.status(204).send();
     } catch (error) {
-      console.log(error);
       return reply.status(500).send({ message: "Erro ao atualizar estado do tour." });
     }
   }
