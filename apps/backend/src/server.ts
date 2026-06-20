@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import { authRoutes } from './routes/auth-routes';
 import { hobbyRoutes } from './routes/hobby-routes';
 import fastifyCookie from '@fastify/cookie';
+import { financeRoutes } from './routes/finance-routes';
 
 const app = fastify({ 
   logger: true,
@@ -32,6 +33,7 @@ app.register(cors, {
 
 app.register(authRoutes, { prefix: '/auth' });
 app.register(hobbyRoutes, { prefix: '/api/hobbies'});
+app.register(financeRoutes, { prefix: '/api/finance'});
 
 const start = async () => {
   try {

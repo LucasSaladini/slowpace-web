@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('US01: Autenticação e Identificação - E2E Scenarios', () => {
   
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://slowpace-web.vercel.app/');
+    await page.goto('http://localhost:3000');
   });
 
   // --- POSITIVE TESTS ---

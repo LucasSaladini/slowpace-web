@@ -7,13 +7,13 @@ export default defineConfig({
   reporter: 'html',
   workers: 1,
   use: {
-    baseURL: 'https://slowpace-web.vercel.app/',
+    baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
   },
   
   webServer: {
     command: 'npm run dev',
-    url: 'https://slowpace-web.vercel.app/',
+    url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     stdout: 'ignore',
     stderr: 'pipe',
