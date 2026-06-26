@@ -3,6 +3,8 @@ import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner"
 import { cn } from "@/lib/utils";
+import { OfflineStatusBar } from "@/components/pwa/OfflineStatusBar";
+import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
 
 const bricolage = Bricolage_Grotesque({ 
   subsets: ["latin"], 
@@ -15,8 +17,11 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SlowPace | Cultivo",
-  description: "Valorize seu tempo, cultive sua calma.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    title: "Slowpace",
+    statusBarStyle: "black-translucent",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -24,6 +29,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt-br" className={cn("dark", bricolage.variable, jakarta.variable)}>
       <body className="antialiased font-sans">
         {children}
+        <OfflineStatusBar />
+        <PWAInstallBanner />
         <Toaster
           toastOptions={{
             classNames: {
