@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Content-Security-Policy",
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' https://slowpace-web.onrender.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; object-src 'none';"
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.com; connect-src 'self' https://slowpace-web.onrender.com https://slowpace-web.vercel.app https://*.vercel-analytics.com; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; object-src 'none'; manifest-src 'self' https://vercel.com https://*.vercel.app;"
           },
           {
             key: "X-Content-Type-Options",
