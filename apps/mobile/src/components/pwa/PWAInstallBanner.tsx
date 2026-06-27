@@ -1,25 +1,40 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, X } from "lucide-react";
+import { Download, X, Share } from "lucide-react";
 
 const LOCAL_STORAGE_KEY = "slowpace:pwa_installed_or_dismissed";
 
 export function PWAInstallBanner() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [platform, setPlatform] = useState<"android" | "ios" | null>(() => {
+    if (typeof window === "undefined") return null;
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    return isIOSDevice ? "ios" : null;
+  });
+  
+  const [isVisible, setIsVisible] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const isSaved = localStorage.getItem(LOCAL_STORAGE_KEY) === "true";
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    return !isSaved && !isStandalone && isIOSDevice;
+  });
 
   useEffect(() => {
-    const isSaved = localStorage.getItem(LOCAL_STORAGE_KEY);
-    if (isSaved === "true") return;
+    if (typeof window === "undefined") return;
+
+    const isSaved = localStorage.getItem(LOCAL_STORAGE_KEY) === "true";
+    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+
+    if (isSaved || isStandalone || isIOSDevice) return;
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-
-      if (!window.matchMedia("(display-mode: standalone)").matches) {
-        setIsVisible(true);
-      }
+      setPlatform("android");
+      setIsVisible(true);
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -47,7 +62,7 @@ export function PWAInstallBanner() {
     setIsVisible(false);
   };
 
-  if (!isVisible) return null;
+  if (!isVisible || !platform) return null;
 
   return (
     <div 
@@ -61,23 +76,33 @@ export function PWAInstallBanner() {
         <p className="text-xs font-semibold" style={{ color: "var(--text-main)" }}>
           Leve o Slowpace no seu dispositivo
         </p>
-        <p className="text-[11px] leading-normal" style={{ color: "var(--text-muted)" }}>
-          Instale a aplicação no seu dispositivo para um espaço de foco sem distrações.
-        </p>
+        {platform === "android" ? (
+          <p className="text-[11px] leading-normal" style={{ color: "var(--text-muted)" }}>
+            Instale a aplicação no seu dispositivo para um espaço de foco sem distrações.
+          </p>
+        ) : (
+          <p className="text-[11px] leading-normal inline-flex flex-wrap items-center gap-1" style={{ color: "var(--text-muted)" }}>
+            Toque no botão de compartilhar
+            <Share size={12} className="inline mx-0.5 text-[var(--text-main)]" />
+            e selecione <span className="font-medium text-[var(--text-main)]">"Adicionar à Tela de Início"</span> para focar sem distrações.
+          </p>
+        )}
       </div>
       <div className="flex items-center gap-1.5 shrink-0">
-        <button
-          onClick={handleInstallClick}
-          className="p-2 rounded-lg border transition-all cursor-pointer flex items-center justify-center hover:opacity-80 active:scale-95"
-          style={{ 
-            backgroundColor: "var(--bg-app)", 
-            borderColor: "var(--border)", 
-            color: "var(--text-main)" 
-          }}
-          title="Instalar Aplicação"
-        >
-          <Download size={14} />
-        </button>
+        {platform === "android" && (
+          <button
+            onClick={handleInstallClick}
+            className="p-2 rounded-lg border transition-all cursor-pointer flex items-center justify-center hover:opacity-80 active:scale-95"
+            style={{ 
+              backgroundColor: "var(--bg-app)", 
+              borderColor: "var(--border)", 
+              color: "var(--text-main)" 
+            }}
+            title="Instalar Aplicação"
+          >
+            <Download size={14} />
+          </button>
+        )}
         <button
           onClick={handleDismiss}
           className="p-2 rounded-lg transition-all cursor-pointer flex items-center justify-center hover:opacity-70 text-[var(--text-muted)]"
