@@ -10,7 +10,9 @@ const withPWA = withPWAInit({
   cacheStartUrl: true,
   workboxOptions: {
     skipWaiting: true,
+    navigateFallbackDenylist: [/^\/auth/, /vercel\.com/],
   },
+  publicExcludes: ["!manifest.json", "!*.woff2"],
 });
 
 const nextConfig: NextConfig = {
