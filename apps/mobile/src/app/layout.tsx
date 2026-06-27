@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner"
@@ -16,9 +16,31 @@ const jakarta = Plus_Jakarta_Sans({
   variable: "--font-sans" 
 });
 
+export const viewport: Viewport = {
+  themeColor: "#121214",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
+  title: "Slowpace",
+  description: "Cultive seu ritmo de forma sustentável.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/icons/favicon.ico?v=2", sizes: "any" },
+      { url: "/icons/favicon.svg?v=2", type: "image/svg+xml" },
+      { url: "/icons/favicon-96x96.png?v=2", sizes: "96x96", type: "image/png" },
+      { url: "/icons/web-app-manifest-192x192.png?v=2", sizes: "192x192", type: "image/png" }
+    ],
+    apple: [
+      { url: "/icons/apple-touch-icon.png?v=2", sizes: "180x180", type: "image/png" }
+    ],
+  },
   appleWebApp: {
+    capable: true,
     title: "Slowpace",
     statusBarStyle: "black-translucent",
   },
