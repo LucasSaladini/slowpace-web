@@ -1,8 +1,8 @@
 {
   "name": "Slowpace",
   "short_name": "Slowpace",
-  "id": "/dashboard?source=pwa",
-  "start_url": "/dashboard?source=pwa",
+  "id": "/dashboard?source=pwa&v=2",
+  "start_url": "/dashboard?source=pwa&v=2",
   "description": "Cultive seu ritmo de forma sustentável.",
   "scope": "/",
   "orientation": "portrait",
@@ -24,16 +24,32 @@
       "purpose": "any"
     },
     {
-      "src": "/icons/web-app-manifest-192x192.png",
-      "sizes": "192x192",
+      "src": "/icons/web-app-manifest-512x512.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icons/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Slowpace Dashboard"
+    },
+    {
+      "src": "/icons/web-app-manifest-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Slowpace Mobile"
     }
   ]
 }

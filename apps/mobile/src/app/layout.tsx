@@ -6,14 +6,14 @@ import { cn } from "@/lib/utils";
 import { OfflineStatusBar } from "@/components/pwa/OfflineStatusBar";
 import { PWAInstallBanner } from "@/components/pwa/PWAInstallBanner";
 
-const bricolage = Bricolage_Grotesque({ 
-  subsets: ["latin"], 
-  variable: "--font-heading" 
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  variable: "--font-heading"
 });
 
-const jakarta = Plus_Jakarta_Sans({ 
-  subsets: ["latin"], 
-  variable: "--font-sans" 
+const jakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  variable: "--font-sans"
 });
 
 export const viewport: Viewport = {
@@ -33,7 +33,8 @@ export const metadata: Metadata = {
       { url: "/icons/favicon.ico?v=2", sizes: "any" },
       { url: "/icons/favicon.svg?v=2", type: "image/svg+xml" },
       { url: "/icons/favicon-96x96.png?v=2", sizes: "96x96", type: "image/png" },
-      { url: "/icons/web-app-manifest-192x192.png?v=2", sizes: "192x192", type: "image/png" }
+      { url: "/icons/web-app-manifest-192x192.png?v=2", sizes: "192x192", type: "image/png" },
+      { url: "/icons/web-app-manifest-512x512.png?v=2", sizes: "512x512", type: "image/png" },
     ],
     apple: [
       { url: "/icons/apple-touch-icon.png?v=2", sizes: "180x180", type: "image/png" }
