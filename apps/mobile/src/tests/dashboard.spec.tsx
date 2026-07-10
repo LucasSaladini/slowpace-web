@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
-  
+
   test.beforeEach(async ({ page }) => {
     await page.goto('/login');
     await page.getByRole('textbox', { name: 'E-mail' }).fill('test@test.com');
@@ -11,16 +11,16 @@ test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
   });
 
   test.afterEach(async ({ page }) => {
-    const handleDialog = (dialog) => dialog.accept().catch(() => {});
+    const handleDialog = (dialog: any) => dialog.accept().catch(() => { });
     page.on('dialog', handleDialog);
-    
+
     try {
       const deleteButtons = page.locator('button[aria-label="Remover luz"]');
       for (let i = 0; i < 5; i++) {
         const count = await deleteButtons.count();
         if (count === 0) break;
-        await deleteButtons.first().click({ force: true, timeout: 3000 }).catch(() => {});
-        await page.waitForTimeout(500);     
+        await deleteButtons.first().click({ force: true, timeout: 3000 }).catch(() => { });
+        await page.waitForTimeout(500);
       }
     } finally {
       page.off('dialog', handleDialog);
@@ -33,10 +33,10 @@ test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
       const hobbyName = `Piano_${Date.now()}`;
       await page.getByPlaceholder(/novo hábito/i).fill(hobbyName);
       await page.selectOption('select', 'weekly');
-      
+
       const colorBubble = page.locator('[style*="background-color: rgb(125, 211, 252)"]').first();
       await colorBubble.click({ force: true });
-      
+
       await page.getByRole('button', { name: /adicionar/i }).click();
 
       await expect(page.getByRole('heading', { name: hobbyName, exact: true })).toBeVisible();
@@ -49,10 +49,10 @@ test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
       await page.getByRole('button', { name: /adicionar/i }).click();
 
       page.on('dialog', dialog => dialog.accept());
-      
+
       const hobbyCard = page.locator('div.group').filter({ hasText: hobbyName });
       await hobbyCard.getByLabel(/remover luz/i).click();
-      
+
       await expect(page.getByText(/hobby removido/i)).toBeVisible();
       await expect(page.getByRole('heading', { name: hobbyName })).not.toBeVisible();
     });
@@ -67,15 +67,15 @@ test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
       const hobbyName = `CancelEdit_${Date.now()}`;
       await page.getByPlaceholder(/novo hábito/i).fill(hobbyName);
       await page.getByRole('button', { name: /adicionar/i }).click();
-      
+
       const hobbyCard = page.locator('div.group').filter({ hasText: hobbyName });
       await hobbyCard.getByLabel(/ajustar aura/i).click();
-      
+
       const editInput = page.locator(`input[value="${hobbyName}"]`);
       await editInput.fill('Temp Name');
-      
+
       await page.getByRole('button', { name: /cancelar/i }).or(page.locator('.lucide-x')).first().click();
-      
+
       await expect(page.getByPlaceholder(/novo hábito/i)).toHaveValue('');
     });
   });
@@ -93,7 +93,7 @@ test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
     test('RN06: deve registrar prática com relato e exibir mensagem acolhedora', async ({ page }) => {
       const hobbyCard = page.locator('div.group').filter({ hasText: sharedHobbyName });
       await hobbyCard.getByLabel(/registrar prática/i).click();
-      
+
       await page.getByRole('spinbutton').fill('45');
       await page.getByPlaceholder(/relato/i).fill('Hoje a prática foi fluida e relaxante.');
       await page.getByRole('button', { name: /confirmar cultivo/i }).click();
@@ -104,7 +104,7 @@ test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
     test('deve permitir registro sem relato (apenas duração)', async ({ page }) => {
       const hobbyCard = page.locator('div.group').filter({ hasText: sharedHobbyName });
       await hobbyCard.getByLabel(/registrar prática/i).click();
-      
+
       await page.getByRole('spinbutton').fill('20');
       await page.getByRole('button', { name: /confirmar cultivo/i }).click();
 
@@ -114,13 +114,13 @@ test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
     test('deve impedir registro com duração inválida', async ({ page }) => {
       const hobbyCard = page.locator('div.group').filter({ hasText: sharedHobbyName });
       await hobbyCard.getByLabel(/registrar prática/i).click();
-      
+
       const durationInput = page.getByRole('spinbutton');
       const submitBtn = page.getByRole('button', { name: /confirmar cultivo/i });
 
       await durationInput.fill('0');
       await expect(submitBtn).toBeDisabled();
-      
+
       await durationInput.fill('-10');
       await expect(submitBtn).toBeDisabled();
     });
@@ -154,24 +154,24 @@ test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
     });
 
     test.describe('Hobbies Flow', () => {
-        test.describe.configure({ mode: 'serial' });
-        
-        test('deve permitir editar um hobby existente', async ({ page }) => {
+      test.describe.configure({ mode: 'serial' });
+
+      test('deve permitir editar um hobby existente', async ({ page }) => {
         const hobbyName = `EditMe_${Date.now()}`;
         const newHobbyName = `Edited_${Date.now()}`;
-        
+
         await page.getByPlaceholder(/novo hábito/i).fill(hobbyName);
         await page.getByRole('button', { name: /adicionar/i }).click();
-        
+
         const hobbyCard = page.locator('div.group').filter({ hasText: hobbyName });
         await hobbyCard.getByLabel(/ajustar aura/i).click();
-        
+
         await page.locator(`input[value="${hobbyName}"]`).fill(newHobbyName);
         await page.getByRole('button', { name: /salvar/i }).click();
 
         await expect(page.getByRole('heading', { name: newHobbyName })).toBeVisible();
         await expect(page.getByText(/hobby atualizado/i)).toBeVisible();
-        });
+      });
     });
 
     test.describe('Timeline Serial Flow', () => {
@@ -183,10 +183,10 @@ test.describe('Dashboard - Gestão de Hobbies e Evolução', () => {
         await page.getByRole('button', { name: /adicionar/i }).click();
 
         await page.waitForTimeout(2000);
-        
+
         const hobbyCard = page.locator('div').filter({ hasText: hobbyName }).first();
         await hobbyCard.getByLabel('Registrar Prática').first().click();
-        
+
         await page.getByRole('spinbutton').fill('30');
         await page.getByPlaceholder(/relato/i).fill('Li 20 páginas de um livro técnico.');
         await page.getByRole('button', { name: 'Confirmar Cultivo' }).click();
