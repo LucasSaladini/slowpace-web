@@ -12,16 +12,17 @@ enum TransactionType {
 }
 
 model User {
-  id          String   @id @default(uuid())
-  email       String   @unique
+  id          String    @id @default(uuid())
+  email       String    @unique
   password    String
-  createdAt   DateTime @default(now())
-  isPaused    Boolean  @default(false)
+  createdAt   DateTime  @default(now())
+  isPaused    Boolean   @default(false)
   pausedAt    DateTime?
-  hasSeenTour Boolean  @default(false)
+  hasSeenTour Boolean   @default(false)
 
-  hobbies       Hobby[]
-  transactions  Transaction[]
+  hobbies      Hobby[]
+  transactions Transaction[]
+  focusTasks   FocusTask[]
 
   @@map("users")
 }
@@ -59,4 +60,19 @@ model Transaction {
 
   @@index([userId, createdAt])
   @@map("transactions")
+}
+
+model FocusTask {
+  id          String   @id @default(uuid())
+  title       String
+  isCompleted Boolean  @default(false)
+  isBacklog   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isCompleted, isBacklog])
+  @@map("focus_tasks")
 }

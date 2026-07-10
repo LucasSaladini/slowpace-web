@@ -20,6 +20,9 @@ import { FinanceContainer } from '@/components/finance/finance-container'
 import { MoodSelector } from '@/components/mood/MoodSelector'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useMoodStore } from '@/store/useMoodStore'
+import { focusService, FocusTask } from '../services/focus-service'
+import { CreateFocusForm } from '@/components/focus/CreateFocusForm'
+import { FocusTaskList } from '@/components/focus/FocusTaskList'
 
 interface ActionIconProps {
   onClick: () => void;
@@ -83,6 +86,7 @@ export default function DashboardPage() {
   const [history, setHistory] = useState<Session[]>([]);
   const [isPaused, setIsPaused] = useState(false);
   const [showTour, setShowTour] = useState(false);
+  const [tasks, setTasks] = useState<FocusTask[]>([])
   const { currentMood } = useMoodStore()
 
   const loadData = useCallback(async () => {
@@ -139,6 +143,110 @@ export default function DashboardPage() {
       loadData()
     } catch (err) {
       toast.error(`Erro ao deletar. ${err}`)
+    }
+  }
+
+  useEffect(() => {
+    if (currentMood === 'focus') {
+      focusService.getAll()
+        .then(setTasks)
+        .catch(() => toast.error("Não foi possível sincronizar seus focos."));
+    }
+  }, [currentMood]);
+
+  const activeCount = tasks.filter(t => !t.isBacklog && !t.isCompleted).length;
+
+  const handleAddTask = async (title: string) => {
+    const tempId = crypto.randomUUID();
+    const willBeBacklog = activeCount >= 5;
+
+    const optimisticTask: FocusTask = {
+      id: tempId,
+      title,
+      isCompleted: false,
+      isBacklog: willBeBacklog,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    setTasks(prev => [...prev, optimisticTask]);
+
+    toast.success(willBeBacklog ? "Movido para backlog mental." : "Foco diário definido em silêncio", { duration: 1500 });
+
+    try {
+      const realTask = await focusService.create(title);
+
+      setTasks(prev => prev.map(t => t.id === tempId ? realTask : t));
+    } catch {
+      setTasks(prev => prev.filter(t => t.id !== tempId));
+
+      toast.error("Erro de persistência ao salvar foco.");
+    }
+  };
+
+  const handleToggleComplete = async (task: FocusTask) => {
+    const oldTasks = [...tasks];
+
+    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, isCompleted: !t.isCompleted } : t));
+
+    try {
+      await focusService.update(task.id, { isCompleted: !task.isCompleted });
+
+      if (!task.isCompleted) {
+        toast.success("Foco diário concluído com consciência", { duration: 1500 });
+      }
+    } catch {
+      setTasks(oldTasks);
+
+      toast.error("Erro ao atualizar status da tarefa");
+    }
+  };
+
+  const handleMoveToActive = async (task: FocusTask) => {
+    if (activeCount >= 5) {
+      toast.error("Carga limite atingida. Conclua ou remova focos ativos primeiro.");
+      return;
+    }
+
+    const oldTasks = [...tasks];
+
+    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, isBacklog: false } : t));
+    toast.success("Foco trazido para o dia atual.", { duration: 1500 });
+
+    try {
+      await focusService.update(task.id, { isBacklog: false });
+    } catch {
+      setTasks(oldTasks);
+      toast.error("Erro ao resgatar tarefa do backlog.");
+    }
+  };
+
+  const handleMoveToBacklog = async (task: FocusTask) => {
+    const oldTasks = [...tasks];
+
+    setTasks(prev => prev.map(t => t.id === task.id ? { ...t, isBacklog: true } : t));
+    toast.success("Movido para o backlog mental.", { duration: 1500 });
+
+    try {
+      await focusService.update(task.id, { isBacklog: true });
+    } catch {
+      setTasks(oldTasks);
+      toast.error("Erro ao mover tarefa para o backlog.");
+    }
+  };
+
+  const handleDeleteTask = async (id: string) => {
+    const oldTasks = [...tasks];
+    setTasks(prev => prev.filter(t => t.id !== id));
+
+    toast.success("Removido da mente.", { duration: 1500 });
+
+    try {
+      await focusService.delete(id);
+    } catch {
+      setTasks(oldTasks);
+
+      toast.error("Erro ao deletar tarefa.");
     }
   }
 
@@ -257,11 +365,24 @@ export default function DashboardPage() {
                         SlowPace / <span style={{ opacity: 0.6 }}>Foco Essencial</span>
                       </h1>
                     </header>
-                    <section className="space-y-6">
+                    <section className="space-y-6 max-w-xl mx-auto w-full">
                       <div className="flex flex-col gap-1">
-                        <h2 className="text-[10px] font-bold tracking-[0.3em] uppercase" style={{ color: 'var(--text-muted)' }}>Menos é Mais</h2>
+                        <h2
+                          className="text-[10px] font-bold tracking-[0.3em] uppercase"
+                          style={{ color: 'var(--text-muted)' }}
+                        >
+                          Menos é Mais
+                        </h2>
                         <p className="text-sm opacity-60 font-light">Selecione até 5 tarefas primordiais para direcionar sua energia hoje.</p>
                       </div>
+                      <CreateFocusForm onAddTask={handleAddTask} activeCount={activeCount} />
+                      <FocusTaskList
+                        tasks={tasks}
+                        onToggleComplete={handleToggleComplete}
+                        onMoveToActive={handleMoveToActive}
+                        onMoveToBacklog={handleMoveToBacklog}
+                        onDelete={handleDeleteTask}
+                      />
                     </section>
                   </motion.div>
                 )}
