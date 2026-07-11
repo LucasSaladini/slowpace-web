@@ -36,6 +36,9 @@ model Hobby {
   userId    String
   user      User      @relation(fields: [userId], references: [id])
   sessions  Session[]
+
+  @@index([userId, createdAt])
+  @@map("hobbies")
 }
 
 model Session {
@@ -45,6 +48,9 @@ model Session {
   createdAt DateTime @default(now())
   hobbyId   String
   hobby     Hobby    @relation(fields: [hobbyId], references: [id])
+
+  @@index([hobbyId, createdAt])
+  @@map("sessions")
 }
 
 model Transaction {
