@@ -2,15 +2,25 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../db/database';
+import { signInSchema, signUpSchema } from '../schemas/auth-schema';
 
 export const authController = {
     async signUp(request: FastifyRequest, reply: FastifyReply) {
-        const { email, password } = request.body as any;
+        const parseResult = signUpSchema.safeParse(request.body);
+
+        if (!parseResult.success) {
+            return reply.status(400).send({
+                message: "Dados inválidos.",
+                errors: parseResult.error.format()
+            });
+        }
+
+        const { email, password } = parseResult.data;
 
         try {
             const userExists = await prisma.user.findUnique({ where: { email } });
             if (userExists) {
-                return reply.status(400).send({ message: "Este e-mail já está em uso." });
+                return reply.status(409).send({ message: "Este e-mail já está em uso." });
             }
 
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -20,16 +30,37 @@ export const authController = {
                 select: { id: true, email: true }
             });
 
-            const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET || 'slowpace-secret', { expiresIn: '24h' });
+            const secret = process.env.JWT_SECRET;
 
-            return reply.status(201).send({ token, user });
+            if (!secret) throw new Error("JWT_SECRET não configurado.");
+
+            const token = jwt.sign({ sub: user.id }, secret, { expiresIn: '24h' });
+
+            return reply
+                .setCookie('slowpace.token', token, {
+                    path: '/',
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax'
+                })
+                .status(201)
+                .send({
+                    user: { id: user.id, email: user.email }
+                });
         } catch (err) {
-            return reply.status(500).send({ message: "Erro ao criar conta." });
+            request.log.error(err);
+            return reply.status(500).send({ message: "Erro interno no servidor." });
         }
     },
 
     async signIn(request: FastifyRequest, reply: FastifyReply) {
-        const { email, password } = request.body as any;
+        const parseResult = signInSchema.safeParse(request.body);
+
+        if (!parseResult.success) {
+            return reply.status(400).send({ message: "Dados inválidos." });
+        }
+
+        const { email, password } = parseResult.data;
 
         try {
             const user = await prisma.user.findUnique({ where: { email } });
@@ -39,22 +70,31 @@ export const authController = {
             }
 
             const isPasswordValid = await bcrypt.compare(password, user.password);
+
             if (!isPasswordValid) {
                 return reply.status(401).send({ message: "E-mail ou senha incorretos." });
             }
 
-            const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET || 'slowpace-secret');
+            const secret = process.env.JWT_SECRET;
 
-            return reply.setCookie('slowpace.token', token, {
-                path: '/',
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax'
-            })
+            if (!secret) throw new Error("JWT_SECRET não configurado.");
+
+            const token = jwt.sign({ sub: user.id }, secret, { expiresIn: '24h' });
+
+            return reply
+                .setCookie('slowpace.token', token, {
+                    path: '/',
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: 'lax'
+                })
                 .status(200)
-                .send({ user: { id: user.id, email: user.email } });
-        } catch (err) {
-            return reply.status(500).send({ message: "Erro interno no servidor." });
+                .send({
+                    user: { id: user.id, email: user.email }
+                });
+        } catch (error) {
+            request.log.error(error);
+            return reply.status(500).send({ message: "Erro ao realizar login." });
         }
     },
 
