@@ -1,7 +1,7 @@
 # 0002 - Gerenciamento de Ciclo de Vida do Servidor e Políticas de CORS/Cookies
 
-- **Status**: Proposed
-- **Data**: 2026-07-11
+- **Status**: Accepted
+- **Data**: 2026-07-12
 - **Autores**: Lucas Saladini
 - **US Relacionada**: US28, Segurança da Informação
 
@@ -37,4 +37,4 @@ Para a segurança dos dados, o CORS foi configurado de forma dinâmica:
 ---
 
 ## 5. Referências e Links
-- Configurações extraídas de `src/server.ts`.
+- Implementação unificada realizada com sucesso em `src/app.ts` e `src/server.ts` através da US34.
