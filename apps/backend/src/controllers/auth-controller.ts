@@ -107,5 +107,46 @@ export const authController = {
         });
 
         return reply.status(204).send();
+    },
+
+    async togglePause(request: FastifyRequest, reply: FastifyReply) {
+        const userId = request.user?.sub;
+
+        if (!userId) {
+            return reply.status(401).send({ message: "Usuário não autenticado." });
+        }
+
+        try {
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { isPaused: true }
+            });
+
+            if (!user) {
+                return reply.status(404).send({ message: "Usuário não encontrado." });
+            }
+
+            const updatedUser = await prisma.user.update({
+                where: { id: userId },
+                data: { isPaused: !user.isPaused },
+                select: { id: true, isPaused: true }
+            });
+
+            return reply.status(200).send({
+                message: updatedUser.isPaused
+                    ? "Aplicativo pausado com sucesso. Respire fundo."
+                    : "Aplicativo retomado. Bem-vindo de volta.",
+                isPaused: updatedUser.isPaused
+            });
+
+        } catch (error) {
+            request.log.error({
+                userId,
+                action: 'USER_PAUSE_MUTATION_ERROR',
+                error: error instanceof Error ? error.message : error,
+                path: request.url
+            });
+            return reply.status(500).send({ message: "Erro ao alterar estado de pausa da conta." });
+        }
     }
 };
