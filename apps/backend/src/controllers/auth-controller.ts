@@ -16,6 +16,7 @@ export const authController = {
         }
 
         const { email, password } = parseResult.data;
+        let createdUserId: string | undefined = undefined;
 
         try {
             const userExists = await prisma.user.findUnique({ where: { email } });
@@ -29,6 +30,8 @@ export const authController = {
                 data: { email, password: hashedPassword },
                 select: { id: true, email: true }
             });
+
+            createdUserId = user.id;
 
             const secret = process.env.JWT_SECRET;
 
@@ -48,7 +51,12 @@ export const authController = {
                     user: { id: user.id, email: user.email }
                 });
         } catch (err) {
-            request.log.error(err);
+            request.log.error({
+                userId: request.user?.sub || createdUserId,
+                action: 'AUTH_SIGNUP_ERROR',
+                error: err instanceof Error ? err.message : err,
+                path: request.url
+            });
             return reply.status(500).send({ message: "Erro interno no servidor." });
         }
     },
@@ -93,7 +101,12 @@ export const authController = {
                     user: { id: user.id, email: user.email }
                 });
         } catch (error) {
-            request.log.error(error);
+            request.log.error({
+                userId: request.user?.sub,
+                action: 'AUTH_SIGNIN_ERROR',
+                error: error instanceof Error ? error.message : error,
+                path: request.url
+            });
             return reply.status(500).send({ message: "Erro ao realizar login." });
         }
     },
