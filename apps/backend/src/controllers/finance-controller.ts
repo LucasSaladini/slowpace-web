@@ -48,31 +48,40 @@ export const financeController = {
   },
 
   async list(request: FastifyRequest, reply: FastifyReply) {
-    const userId = request.user.sub;
+    const userId = request.user?.sub;
+
+    if (!userId) {
+      return reply.status(401).send({ message: "Usuário não autenticado" });
+    }
 
     try {
-      const transactions = await prisma.transaction.findMany({
+      const transcations = await prisma.transaction.findMany({
         where: { userId },
         orderBy: { createdAt: 'desc' }
       });
 
-      const formattedTransactions = transactions.map(t => ({
-        ...t,
-        amount: t.amount / 100
+      const formattedTransactions = transcations.map(t => ({
+        id: t.id,
+        description: t.description,
+        amount: t.amount / 100,
+        type: t.type,
+        category: t.category,
+        createdAt: t.createdAt,
+        updatedAt: t.updatedAt
       }));
 
-      return reply.send(formattedTransactions);
+      return reply.status(200).send({ transactions: formattedTransactions });
     } catch (error) {
-      request.log.error({ 
-        userId, 
-        action: 'FINANCE_LIST_ERROR', 
-        error: error instanceof Error ? error.message : error, 
-        path: request.url 
+      request.log.error({
+        userId,
+        action: 'FINANCE_QUERY_ERROR',
+        error: error instanceof Error ? error.message : error,
+        path: request.url
       });
-      return reply.status(500).send({ message: "Erro ao carregar lançamentos." });
+      return reply.status(500).send({ message: "Erro ao buscar transações financeiras." });
     }
   },
-  
+
   async update(request: FastifyRequest, reply: FastifyReply) {
     const userId = request.user.sub;
     const { id } = request.params as { id: string };
