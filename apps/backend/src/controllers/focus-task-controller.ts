@@ -8,16 +8,33 @@ interface FocusTaskBody {
     isBacklog?: boolean;
 }
 
+const createFocusSchema = z.object({
+    title: z.string()
+        .min(1, "O título do foco não pode estar vazio.")
+        .max(255)
+        .transform(t => t.trim())
+});
+
+const updateFocusSchema = z.object({
+    title: z.string()
+        .min(1, "O título do foco não pode estar vazio.")
+        .max(255)
+        .transform(t => t.trim())
+        .optional(),
+    isCompleted: z.boolean().optional(),
+    isBacklog: z.boolean().optional()
+});
+
 export const focusTaskController = {
     async create(request: FastifyRequest, reply: FastifyReply) {
-        const userId = request.user.sub;
-        const { title } = request.body as FocusTaskBody;
+        const userId = request.user?.sub;
+
+        if (!userId) {
+            return reply.status(401).send({ message: "Usuário não autenticado." });
+        }
 
         try {
-            if (!title || title.trim().length === 0) {
-                return reply.status(400).send({ message: "O título do foco não pode estar vazio." });
-            }
-
+            const { title } = createFocusSchema.parse(request.body);
             const activeFocusCount = await prisma.focusTask.count({
                 where: {
                     userId,
@@ -26,18 +43,20 @@ export const focusTaskController = {
                 }
             });
 
-            const isBacklog = activeFocusCount >= 5;
-
             const task = await prisma.focusTask.create({
                 data: {
                     userId,
-                    title: title.trim(),
-                    isBacklog
+                    title,
+                    isBacklog: activeFocusCount >= 5
                 }
             });
 
             return reply.status(201).send(task);
         } catch (error) {
+            if (error instanceof z.ZodError) {
+                return reply.status(400).send({ message: error.message })
+            }
+
             request.log.error({
                 userId,
                 action: 'FOCUS_MUTATION_ERROR',
@@ -45,7 +64,7 @@ export const focusTaskController = {
                 path: request.url
             });
 
-            return reply.status(500).send({ message: "Erro ao criar foco diário." });
+            return reply.status(500).send({ message: "Erro ao criar tarefa de foco." });
         }
     },
 
@@ -72,11 +91,17 @@ export const focusTaskController = {
     },
 
     async update(request: FastifyRequest, reply: FastifyReply) {
-        const userId = request.user.sub;
-        const { id } = request.params as { id: string }
-        const { title, isCompleted, isBacklog } = request.body as FocusTaskBody;
+        const userId = request.user?.sub;
+        const { id } = request.params as { id: string };
+
+        if (!userId) {
+            return reply.status(401).send({ message: "Usuário não autenticado." });
+        }
 
         try {
+            const parsedBody = updateFocusSchema.parse(request.body);
+            const { title, isCompleted, isBacklog } = parsedBody;
+
             const taskExists = await prisma.focusTask.findFirst({
                 where: { id, userId }
             });
@@ -102,7 +127,7 @@ export const focusTaskController = {
             const updatedTask = await prisma.focusTask.update({
                 where: { id },
                 data: {
-                    title: title !== undefined ? title.trim() : undefined,
+                    title,
                     isCompleted,
                     isBacklog
                 }
@@ -110,12 +135,17 @@ export const focusTaskController = {
 
             return reply.send(updatedTask);
         } catch (error) {
+            if (error instanceof z.ZodError) {
+                return reply.status(400).send({ message: error.message });
+            }
+
             request.log.error({
                 userId,
                 action: 'FOCUS_MUTATION_ERROR',
                 error: error instanceof Error ? error.message : error,
                 path: request.url
             });
+
             return reply.status(500).send({ message: "Erro ao atualizar foco diário." });
         }
     },
