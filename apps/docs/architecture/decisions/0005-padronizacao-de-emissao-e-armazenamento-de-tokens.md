@@ -1,6 +1,6 @@
 # 0005 - Padronização de Emissão de Tokens e Isolamento de Estado de Sessão
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Data**: 2026-07-11
 - **Autores**: Lucas Saladini
 - **US Relacionada**: US28, Segurança da Informação
