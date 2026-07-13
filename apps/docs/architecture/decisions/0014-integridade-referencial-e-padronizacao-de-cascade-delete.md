@@ -1,6 +1,6 @@
 # 0014 - Integridade Referencial Baseada em Banco de Dados e Padronização de Cascade Delete
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Data**: 2026-07-11
 - **Autores**: Lucas Saladini
 - **US Relacionada**: US22, US28, Modelagem de Banco de Dados

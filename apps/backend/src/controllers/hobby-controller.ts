@@ -74,9 +74,16 @@ export const hobbyController = {
       });
       return reply.status(201).send(hobby);
     } catch (error) {
+      request.log.error({
+        userId,
+        action: 'HOBBY_CREATE_ERROR',
+        error: error instanceof Error ? error.message : error,
+        path: request.url
+      });
       return reply.status(500).send({ message: "Erro ao criar hobby." });
     }
   },
+
   async update(request: FastifyRequest, reply: FastifyReply) {
     const { id } = request.params as { id: string };
     const { name, color, frequency } = request.body as any;
@@ -89,6 +96,12 @@ export const hobbyController = {
       });
       return reply.send(hobby);
     } catch (error) {
+      request.log.error({
+        userId,
+        action: 'HOBBY_UPDATE_ERROR',
+        error: error instanceof Error ? error.message : error,
+        path: request.url
+      });
       return reply.status(500).send({ message: "Erro ao atualizar hobby." });
     }
   },
@@ -102,6 +115,12 @@ export const hobbyController = {
       await prisma.hobby.delete({ where: { id, userId } });
       return reply.status(204).send();
     } catch (error) {
+      request.log.error({
+        userId,
+        action: 'HOBBY_DELETE_ERROR',
+        error: error instanceof Error ? error.message : error,
+        path: request.url
+      });
       return reply.status(500).send({ message: "Erro ao deletar hobby." });
     }
   },
@@ -131,6 +150,12 @@ export const hobbyController = {
 
       return reply.status(201).send({ session, message: phrase });
     } catch (error) {
+      request.log.error({
+        userId,
+        action: 'HOBBY_ADD_SESSION_ERROR',
+        error: error instanceof Error ? error.message : error,
+        path: request.url
+      });
       return reply.status(500).send({ message: "Erro ao registrar tempo." });
     }
   },
@@ -157,6 +182,12 @@ export const hobbyController = {
 
       return reply.send(history);
     } catch (error) {
+      request.log.error({
+        userId,
+        action: 'HOBBY_HISTORY_QUERY_ERROR',
+        error: error instanceof Error ? error.message : error,
+        path: request.url
+      });
       return reply.status(500).send({ message: "Erro ao carregar histórico." });
     }
   },
@@ -178,7 +209,12 @@ export const hobbyController = {
 
       return reply.send({ isPaused: updatedUser.isPaused });
     } catch (error) {
-      console.error(error);
+      request.log.error({
+        userId,
+        action: 'USER_PAUSE_MUTATION_ERROR',
+        error: error instanceof Error ? error.message : error,
+        path: request.url
+      });
       return reply.status(500).send({ message: "Erro ao alterar estado de pausa." });
     }
   },
@@ -194,6 +230,12 @@ export const hobbyController = {
 
       return reply.status(204).send();
     } catch (error) {
+      request.log.error({
+        userId,
+        action: 'USER_COMPLETE_TOUR_ERROR',
+        error: error instanceof Error ? error.message : error,
+        path: request.url
+      });
       return reply.status(500).send({ message: "Erro ao atualizar estado do tour." });
     }
   }
