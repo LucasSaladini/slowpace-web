@@ -1,6 +1,6 @@
 # 0009 - Desacoplamento Estrito entre Definição de Rotas (Transporte) e Controladores (Aplicação)
 
-- **Status**: Accepted
+- **Status**: Proposed
 - **Data**: 2026-07-11
 - **Autores**: Lucas Saladini
 - **US Relacionada**: US28, Gestão de Débito Técnico
