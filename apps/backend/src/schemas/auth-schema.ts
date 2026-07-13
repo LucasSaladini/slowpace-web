@@ -1,9 +1,14 @@
 import { z } from 'zod';
 
+const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 const baseAuthFields = {
-    email: z.email("E-mail inválido")
+    email: z.string()
         .trim()
-        .toLowerCase(),
+        .toLowerCase()
+        .refine((val) => emailRegex.test(val), {
+            message: "E-mail inválido"
+        })
 };
 
 export const signUpSchema = z.object({
