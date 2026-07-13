@@ -4,44 +4,63 @@ import { getRandomPhrase } from '../utils/encouragement';
 
 export const hobbyController = {
   async getStats(request: FastifyRequest, reply: FastifyReply) {
-    const userId = request.user.sub;
+    const userId = request.user?.sub;
+
+    if (!userId) {
+      return reply.status(401).send({ message: "Usuário não autenticado." });
+    }
 
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: userId },
-        select: { isPaused: true, hasSeenTour: true }
+      const totalMinutesAggregate = await prisma.session.aggregate({
+        where: {
+          hobby: { userId }
+        },
+        _sum: {
+          duration: true
+        }
+      });
+
+      const totalMinutes = totalMinutesAggregate._sum.duration || 0;
+
+      const hobbyGroups = await prisma.session.groupBy({
+        by: ['hobbyId'],
+        where: {
+          hobby: { userId }
+        },
+        _sum: {
+          duration: true
+        }
       });
 
       const hobbies = await prisma.hobby.findMany({
         where: { userId },
-        include: {
-          sessions: {
-            select: { duration: true }
-          }
-        }
+        select: { id: true, name: true, color: true }
       });
 
-      const totalMinutes = hobbies.reduce((acc, hobby) => {
-        const hobbyMinutes = hobby.sessions.reduce((sAcc, s) => sAcc + s.duration, 0);
-        return acc + hobbyMinutes;
-      }, 0);
-      const stardustData = hobbies.map(hobby => ({
-        id: hobby.id,
-        name: hobby.name,
-        color: hobby.color || '#71717a',
-        frequency: hobby.frequency,
-        totalMinutes: hobby.sessions.reduce((acc, s) => acc + s.duration, 0)
-      }));
+      const stardustData = hobbyGroups.map(group => {
+        const hobbyInfo = hobbies.find(h => h.id === group.hobbyId);
 
-      return reply.send({
-        totalHours: Math.floor(totalMinutes / 60),
+        return {
+          hobbyId: group.hobbyId,
+          name: hobbyInfo?.name || "Desconhecido",
+          color: hobbyInfo?.color || "#CCCCCC",
+          totalDuration: group._sum.duration || 0,
+        };
+      });
+
+      return reply.status(200).send({
         totalMinutes,
-        stardustData,
-        isPaused: !!user?.isPaused,
-        hasSeenTour: !!user?.hasSeenTour
+        stardustData
       });
     } catch (error) {
-      return reply.status(500).send({ message: "Erro ao carregar estatísticas." });
+      request.log.error({
+        userId,
+        action: 'HOBBY_STATS_QUERY_ERROR',
+        error: error instanceof Error ? error.message : error,
+        path: request.url
+      });
+
+      return reply.status(500).send({ message: "Erro ao compilar estatísticas dos hobbies." });
     }
   },
 
@@ -106,8 +125,8 @@ export const hobbyController = {
         select: { isPaused: true }
       });
 
-      const phrase = user?.isPaused 
-        ? "Registro salvo em silêncio. Continue descansando." 
+      const phrase = user?.isPaused
+        ? "Registro salvo em silêncio. Continue descansando."
         : getRandomPhrase();
 
       return reply.status(201).send({ session, message: phrase });
@@ -126,7 +145,7 @@ export const hobbyController = {
       });
 
       if (user?.isPaused) {
-        return reply.send([]); 
+        return reply.send([]);
       }
 
       const history = await prisma.session.findMany({
