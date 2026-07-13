@@ -1,6 +1,6 @@
 # 0011 - Normalização de Dados e Isolamento de Schemas de Validação em Runtime
 
-- **Status**: Proposed
+- **Status**: Accepted
 - **Data**: 2026-07-11
 - **Autores**: Lucas Saladini
 - **US Relacionada**: US28, Segurança da Informação
