@@ -24,22 +24,23 @@ export default function LoginPage() {
             if (isLogin) {
                 const response = await authService.login(data);
 
-                const token = response?.token || response?.data?.token;
+                const token = response?.token || response?.data?.token || response;
 
-                if (token) {
+                if (token && typeof token === 'string') {
                     setCookie(null, 'slowpace.token', token, {
                         maxAge: 30 * 24 * 60 * 60,
                         path: '/',
                         secure: true,
                         sameSite: 'lax',
                     });
+
+                    localStorage.setItem('slowpace.token', token);
                 }
             } else {
                 await authService.signUp(data);
             }
 
-            router.refresh();
-            router.push('/dashboard');
+            window.location.href = '/dashboard';
         } catch (err: any) {
             const message = err.response?.data?.message;
             if (!isLogin && err.response?.status === 409) {
