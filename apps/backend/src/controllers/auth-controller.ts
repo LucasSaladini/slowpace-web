@@ -44,7 +44,7 @@ export const authController = {
                     path: '/',
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax'
+                    sameSite: 'none'
                 })
                 .status(201)
                 .send({
@@ -94,7 +94,7 @@ export const authController = {
                     path: '/',
                     httpOnly: true,
                     secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'lax'
+                    sameSite: 'none'
                 })
                 .status(200)
                 .send({
