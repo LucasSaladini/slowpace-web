@@ -5,17 +5,19 @@ import { Transaction } from "@/app/services/finance-service";
 import { ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
 interface FinanceChartProps {
-  transactions: Transaction[];
+  transactions?: Transaction[];
 }
 
-export function FinanceChart({ transactions }: FinanceChartProps) {
+export function FinanceChart({ transactions = [] }: { transactions?: Transaction[] }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const safeTransactions = Array.isArray(transactions) ? transactions : [];
 
   const { chartData, balance } = useMemo(() => {
     let incomeSum = 0;
     let expenseSum = 0;
 
-    for (const t of transactions) {
+    for (const t of safeTransactions) {
       if (t.type === "INCOME") {
         incomeSum += t.amount;
       } else {
@@ -25,19 +27,19 @@ export function FinanceChart({ transactions }: FinanceChartProps) {
 
     const data = [];
     if (incomeSum > 0) {
-      data.push({ 
-        name: "Receitas", 
-        value: Number(incomeSum.toFixed(2)), 
+      data.push({
+        name: "Receitas",
+        value: Number(incomeSum.toFixed(2)),
         type: "INCOME",
-        fill: "var(--accent)" 
+        fill: "var(--accent)"
       });
     }
     if (expenseSum > 0) {
-      data.push({ 
-        name: "Despesas", 
-        value: Number(expenseSum.toFixed(2)), 
+      data.push({
+        name: "Despesas",
+        value: Number(expenseSum.toFixed(2)),
         type: "EXPENSE",
-        fill: "var(--text-muted)" 
+        fill: "var(--text-muted)"
       });
     }
 
@@ -45,9 +47,9 @@ export function FinanceChart({ transactions }: FinanceChartProps) {
       chartData: data,
       balance: incomeSum - expenseSum,
     };
-  }, [transactions]);
+  }, [safeTransactions]);
 
-  if (transactions.length === 0) {
+  if (safeTransactions.length === 0) {
     return (
       <div className="h-[240px] flex items-center justify-center border border-dashed rounded-xl bg-[var(--bg-app)]/20" style={{ borderColor: 'var(--border)' }}>
         <p className="text-sm font-light" style={{ color: 'var(--text-muted)' }}>Dados insuficientes para gerar o balanço financeiro.</p>
@@ -75,12 +77,9 @@ export function FinanceChart({ transactions }: FinanceChartProps) {
         <span className="text-[10px] uppercase tracking-wider font-medium" style={{ color: 'var(--text-muted)' }}>
           Saldo Atual
         </span>
-        {/* 🎯 Mudança aqui: O saldo assume var(--text-main) para contraste perfeito em Light, Sepia e Dark.
-            A distinção de positivo/negativo é feita pelo sinal (+/-) e por uma classe suave condicional de cor se for negativo. */}
-        <span 
-          className={`text-lg font-bold tracking-tight mt-0.5 transition-all duration-300 ${
-            balance < 0 ? "text-rose-500/90 dark:text-rose-400" : ""
-          }`} 
+        <span
+          className={`text-lg font-bold tracking-tight mt-0.5 transition-all duration-300 ${balance < 0 ? "text-rose-500/90 dark:text-rose-400" : ""
+            }`}
           style={{ color: balance >= 0 ? 'var(--text-main)' : undefined }}
         >
           {balance >= 0 ? "+" : ""}R$ {balance.toFixed(2)}
@@ -110,7 +109,7 @@ export function FinanceChart({ transactions }: FinanceChartProps) {
             {chartData.map((entry, index) => {
               const isDimmed = activeIndex !== null && activeIndex !== index;
               return (
-                <Cell 
+                <Cell
                   key={`cell-${index}`}
                   fill={entry.fill}
                   style={{

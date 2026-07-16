@@ -7,13 +7,12 @@ import { ThemeSwitcher } from '../themeSwitcher/ThemeSwitcher';
 export function Header() {
     const router = useRouter();
 
-    const handleLogout = () => {
-        authService.logout();
-        router.push('/');
+    const handleLogout = async () => {
+        await authService.logout();
     };
 
     return (
-        <header className="w-full shadow-sm border-b transition-colors duration-700" 
+        <header className="w-full shadow-sm border-b transition-colors duration-700"
             style={{ backgroundColor: 'var(--bg-header)', borderColor: 'var(--border)' }}>
             <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
                 <div className="flex items-center gap-2">

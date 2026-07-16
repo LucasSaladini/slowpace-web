@@ -2,7 +2,12 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export function proxy(request: NextRequest) {
-  const token = request.cookies.get('slowpace.token')?.value
+  let token = request.cookies.get('slowpace.token')?.value
+
+  if (token === 'undefined' || token === 'null' || !token) {
+    token = undefined
+  }
+
   const { pathname } = request.nextUrl
 
   if (

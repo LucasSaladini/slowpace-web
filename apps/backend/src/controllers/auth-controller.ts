@@ -4,6 +4,8 @@ import jwt from 'jsonwebtoken';
 import { prisma } from '../db/database';
 import { signInSchema, signUpSchema } from '../schemas/auth-schema';
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const authController = {
     async signUp(request: FastifyRequest, reply: FastifyReply) {
         const parseResult = signUpSchema.safeParse(request.body);
@@ -43,8 +45,8 @@ export const authController = {
                 .setCookie('slowpace.token', token, {
                     path: '/',
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'none'
+                    secure: isProduction,
+                    sameSite: isProduction ? 'none' : 'lax'
                 })
                 .status(201)
                 .send({
@@ -93,8 +95,8 @@ export const authController = {
                 .setCookie('slowpace.token', token, {
                     path: '/',
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'none'
+                    secure: isProduction,
+                    sameSite: isProduction ? 'none' : 'lax'
                 })
                 .status(200)
                 .send({
@@ -109,6 +111,20 @@ export const authController = {
             });
             return reply.status(500).send({ message: "Erro ao realizar login." });
         }
+    },
+
+    async signOut(request: FastifyRequest, reply: FastifyReply) {
+        const isProduction = process.env.NODE_ENV === 'production';
+
+        return reply
+            .clearCookie('slowpace.token', {
+                path: '/',
+                httpOnly: true,
+                secure: isProduction,
+                sameSite: isProduction ? 'none' : 'lax'
+            })
+            .status(200)
+            .send({ message: "Sessão encerrada com sucesso." });
     },
 
     async completeTour(request: FastifyRequest, reply: FastifyReply) {
