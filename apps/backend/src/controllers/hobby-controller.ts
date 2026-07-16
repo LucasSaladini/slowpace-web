@@ -32,19 +32,21 @@ export const hobbyController = {
         }
       });
 
+      const durationMap = new Map<string, number>(
+        hobbyGroups.map(group => [group.hobbyId, group._sum.duration || 0])
+      );
+
       const hobbies = await prisma.hobby.findMany({
         where: { userId },
         select: { id: true, name: true, color: true }
       });
 
-      const stardustData = hobbyGroups.map(group => {
-        const hobbyInfo = hobbies.find(h => h.id === group.hobbyId);
-
+      const stardustData = hobbies.map(hobby => {
         return {
-          hobbyId: group.hobbyId,
-          name: hobbyInfo?.name || "Desconhecido",
-          color: hobbyInfo?.color || "#CCCCCC",
-          totalDuration: group._sum.duration || 0,
+          id: hobby.id,
+          name: hobby.name,
+          color: hobby.color || "#CCCCCC",
+          totalMinutes: durationMap.get(hobby.id) || 0,
         };
       });
 

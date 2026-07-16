@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "tsx watch --inspect src/server.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "build": "npx prisma generate && npx prisma migrate deploy && tsc",

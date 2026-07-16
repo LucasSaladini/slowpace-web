@@ -16,9 +16,21 @@ export function FinanceContainer() {
   const loadTransactions = async () => {
     try {
       setLoading(true);
-      const data = await financeService.getTransactions();
-      setTransactions(data);
+
+      const data = await financeService.getTransactions() as any;
+
+      console.log("DADOS VINDOS DO SERVICE:", data);
+
+      if (Array.isArray(data)) {
+        setTransactions(data);
+      } else if (data && typeof data === 'object') {
+        const extractedTransactions = data.transactions || data.data || [];
+        setTransactions(extractedTransactions);
+      } else {
+        setTransactions([]);
+      }
     } catch (err) {
+      console.error("Erro ao carregar transações:", err);
       toast.error("Não foi possível carregar o fluxo financeiro.");
     } finally {
       setLoading(false);
@@ -33,19 +45,19 @@ export function FinanceContainer() {
     try {
       if (editingTransaction) {
         const updatedData = await financeService.updateTransaction(editingTransaction.id, data);
-        
-        setTransactions(prev => 
+
+        setTransactions(prev =>
           prev.map(t => t.id === editingTransaction.id ? updatedData : t)
         );
-        
+
         setEditingTransaction(null);
-        
+
         toast.success("Lançamento atualizado com sucesso.");
       } else {
         const newTransaction = await financeService.createTransaction(data);
-        
+
         setTransactions(prev => [newTransaction, ...prev]);
-        
+
         toast.success("Lançamento adicionado.");
       }
     } catch (error) {
@@ -57,9 +69,9 @@ export function FinanceContainer() {
   const handleDeleteTransaction = async (id: string) => {
     try {
       await financeService.deleteTransaction(id);
-      
+
       toast.success("Lançamento removido em silêncio.");
-      
+
       loadTransactions();
     } catch (err) {
       toast.error("Erro ao remover lançamento.");
@@ -68,7 +80,7 @@ export function FinanceContainer() {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-      <Card 
+      <Card
         className="md:col-span-1 border backdrop-blur-sm transition-colors duration-500"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}
       >
@@ -86,7 +98,7 @@ export function FinanceContainer() {
         </CardContent>
       </Card>
 
-      <Card 
+      <Card
         className="md:col-span-2 border backdrop-blur-sm transition-colors duration-500"
         style={{ backgroundColor: 'var(--bg-card)', borderColor: 'var(--border)' }}
       >

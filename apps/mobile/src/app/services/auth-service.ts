@@ -1,4 +1,3 @@
-import { setCookie, destroyCookie, parseCookies } from "nookies";
 import axios from "axios";
 import { AuthData } from "../lib/auth-schema";
 
@@ -12,32 +11,22 @@ const api = axios.create({
 export const authService = {
     async signUp(data: AuthData) {
         const response = await api.post('/auth/signup', data);
-        const { token } = response.data;
-
-        setCookie(undefined, 'slowpace.token', token, {
-            path: '/',
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-        });
-
         return response.data;
     },
 
     async login(data: AuthData) {
         const response = await api.post('/auth/login', data);
-        const { token } = response.data;
-
-        setCookie(undefined, 'slowpace.token', token, {
-            path: '/',
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'strict'
-        });
-
         return response.data;
     },
 
-    logout() {
-        destroyCookie(undefined, 'slowpace.token');
-        window.location.href = '/login';
+    async logout() {
+        try {
+            await api.post('/auth/logout');
+        } catch (error) {
+            console.error("Erro ao invalidar sessão no servidor:", error);
+        } finally {
+            document.cookie = "slowpace.token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = '/login';
+        }
     }
 }

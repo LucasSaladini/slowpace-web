@@ -136,6 +136,11 @@ export default function DashboardPage() {
   }
 
   const handleDeleteHobby = async (id: string) => {
+    console.log("ID recebido no handleDeleteHobby:", id); // 👈 Põe isto aqui!
+    if (!id) {
+      console.error("ERRO: O ID está vindo vazio no clique do botão!");
+      return;
+    }
     if (!confirm("Deseja remover este hobby? O tempo acumulado será perdido.")) return
     try {
       await hobbyService.delete(id)
