@@ -7,6 +7,7 @@ import { authService } from '@/app/services/auth-service';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Mail, Lock, UserPlus, LogIn } from 'lucide-react';
+import { setCookie } from 'nookies';
 
 export default function LoginPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -21,10 +22,23 @@ export default function LoginPage() {
         setError('');
         try {
             if (isLogin) {
-                await authService.login(data);
+                const response = await authService.login(data);
+
+                const token = response?.token || response?.data?.token;
+
+                if (token) {
+                    setCookie(null, 'slowpace.token', token, {
+                        maxAge: 30 * 24 * 60 * 60,
+                        path: '/',
+                        secure: true,
+                        sameSite: 'lax',
+                    });
+                }
             } else {
                 await authService.signUp(data);
             }
+
+            router.refresh();
             router.push('/dashboard');
         } catch (err: any) {
             const message = err.response?.data?.message;
@@ -39,8 +53,8 @@ export default function LoginPage() {
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6 selection:bg-zinc-700">
-            <form 
-                onSubmit={handleSubmit(onSubmit)} 
+            <form
+                onSubmit={handleSubmit(onSubmit)}
                 className="w-full max-w-sm p-8 bg-zinc-900/40 border border-zinc-800/50 rounded-[2.5rem] shadow-2xl backdrop-blur-md transition-all duration-500"
             >
                 <div className="mb-10 text-center space-y-2">
@@ -57,9 +71,8 @@ export default function LoginPage() {
                         <input
                             {...register('email')}
                             placeholder="E-mail"
-                            className={`w-full py-3 pl-10 pr-4 bg-zinc-950 border rounded-2xl text-zinc-100 placeholder:text-zinc-600 text-sm transition-all outline-none focus:ring-1 focus:ring-zinc-700 ${
-                                errors.email ? 'border-red-900/50' : 'border-zinc-800 group-hover:border-zinc-700'
-                            }`}
+                            className={`w-full py-3 pl-10 pr-4 bg-zinc-950 border rounded-2xl text-zinc-100 placeholder:text-zinc-600 text-sm transition-all outline-none focus:ring-1 focus:ring-zinc-700 ${errors.email ? 'border-red-900/50' : 'border-zinc-800 group-hover:border-zinc-700'
+                                }`}
                         />
                         {errors.email && (
                             <p className="text-[10px] text-red-400 mt-1.5 ml-2 uppercase tracking-tight">
@@ -73,9 +86,8 @@ export default function LoginPage() {
                             {...register('password')}
                             type="password"
                             placeholder="Senha"
-                            className={`w-full py-3 pl-10 pr-4 bg-zinc-950 border rounded-2xl text-zinc-100 placeholder:text-zinc-600 text-sm transition-all outline-none focus:ring-1 focus:ring-zinc-700 ${
-                                errors.password ? 'border-red-900/50' : 'border-zinc-800 group-hover:border-zinc-700'
-                            }`}
+                            className={`w-full py-3 pl-10 pr-4 bg-zinc-950 border rounded-2xl text-zinc-100 placeholder:text-zinc-600 text-sm transition-all outline-none focus:ring-1 focus:ring-zinc-700 ${errors.password ? 'border-red-900/50' : 'border-zinc-800 group-hover:border-zinc-700'
+                                }`}
                         />
                         {errors.password && (
                             <p className="text-[10px] text-red-400 mt-1.5 ml-2 uppercase tracking-tight">
