@@ -11,7 +11,11 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
     const cookies = parseCookies();
-    const token = cookies['slowpace.token'];
+    let token = cookies['slowpace.token'] as string | undefined;
+
+    if (!token && typeof window !== "undefined") {
+        token = localStorage.getItem('slowpace.token') || undefined;
+    }
 
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
