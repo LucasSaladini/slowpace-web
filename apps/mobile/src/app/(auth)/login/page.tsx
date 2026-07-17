@@ -22,35 +22,25 @@ export default function LoginPage() {
         setError('');
         try {
             if (isLogin) {
-                const response = await authService.login(data);
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
 
-                const token = response?.token || response?.data?.token || response;
+                const responseData = await res.json();
 
-                if (token && typeof token === 'string') {
-                    setCookie(null, 'slowpace.token', token, {
-                        maxAge: 30 * 24 * 60 * 60,
-                        path: '/',
-                        secure: true,
-                        sameSite: 'lax',
-                    });
-
-                    localStorage.setItem('slowpace.token', token);
+                if (!res.ok) {
+                    throw new Error(responseData.message || 'Falha no login');
                 }
 
-                if (response?.user) {
-                    router.push('/dashboard');
-                }
+                console.log("[DEBUG] Login bem-sucedido via BFF. Redirecionando...");
+                router.push('/dashboard');
             } else {
                 await authService.signUp(data);
             }
         } catch (err: any) {
-            const message = err.response?.data?.message;
-            if (!isLogin && err.response?.status === 409) {
-                setError('Este e-mail já possui conta. Tente fazer login.');
-                setIsLogin(true);
-            } else {
-                setError(message || 'Erro ao conectar ao servidor');
-            }
+            setError(err.message || 'Erro ao conectar ao servidor');
         }
     };
 
