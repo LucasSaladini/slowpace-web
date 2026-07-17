@@ -36,11 +36,13 @@ export default function LoginPage() {
 
                     localStorage.setItem('slowpace.token', token);
                 }
+
+                if (response?.user) {
+                    router.push('/dashboard');
+                }
             } else {
                 await authService.signUp(data);
             }
-
-            window.location.href = '/dashboard';
         } catch (err: any) {
             const message = err.response?.data?.message;
             if (!isLogin && err.response?.status === 409) {
