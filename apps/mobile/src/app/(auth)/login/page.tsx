@@ -34,7 +34,6 @@ export default function LoginPage() {
                     throw new Error(responseData.message || 'Falha no login');
                 }
 
-                console.log("[DEBUG] Login bem-sucedido via BFF. Redirecionando...");
                 router.push('/dashboard');
             } else {
                 await authService.signUp(data);

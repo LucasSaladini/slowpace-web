@@ -19,8 +19,6 @@ export function FinanceContainer() {
 
       const data = await financeService.getTransactions() as any;
 
-      console.log("DADOS VINDOS DO SERVICE:", data);
-
       if (Array.isArray(data)) {
         setTransactions(data);
       } else if (data && typeof data === 'object') {
