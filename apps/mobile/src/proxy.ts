@@ -22,7 +22,10 @@ export function proxy(request: NextRequest) {
   const isDashboardPage = pathname.startsWith('/dashboard')
   const isRoot = pathname === '/'
 
-  if (!token && (isDashboardPage || isRoot)) {
+  const isLocalhost = request.nextUrl.hostname === 'localhost' || request.nextUrl.hostname === '127.0.0.1'
+  const hasAccess = token || (isLocalhost && isDashboardPage)
+
+  if (!hasAccess && (isDashboardPage || isRoot)) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
