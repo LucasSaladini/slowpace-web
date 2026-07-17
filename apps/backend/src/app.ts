@@ -19,10 +19,14 @@ export const buildApp = async () => {
             const allowedOrigins = [
                 'http://localhost:3000',
                 'http://127.0.0.1:3000',
+                'http://localhost:3002',
+                'http://127.0.0.1:3002',
                 frontendUrl
             ].filter(Boolean) as string[];
 
-            if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ""))) {
+            const sanitizedOrigin = origin ? origin.replace(/\/$/, "") : '';
+
+            if (!origin || allowedOrigins.includes(sanitizedOrigin) || /slowpace-web.*\.vercel\.app$/.test(sanitizedOrigin)) {
                 cb(null, true);
                 return;
             }
@@ -30,7 +34,7 @@ export const buildApp = async () => {
         },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
     });
 
     app.register(authRoutes, { prefix: '/auth' });
