@@ -26,5 +26,5 @@ jobs:
 
             - name: Run Prisma Migrations
               run: |
-                  # Executes migrations inside the container the was build just before
-                  docker exec slowpace-api npx prisma migrate deploy
+                  # Injeta a string de conexão diretamente no escopo de execução do Prisma
+                  docker exec slowpace-api sh -c "DATABASE_URL='${{ secrets.DATABASE_URL }}' npx prisma migrate deploy"
