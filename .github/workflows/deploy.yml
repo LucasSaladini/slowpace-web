@@ -1,0 +1,32 @@
+name: Deploy Slowpace to Home Server
+
+on:
+    push:
+        branches: [main]
+
+jobs:
+    deploy:
+        runs-on: self-hosted
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v4
+
+            - name: Create .env file
+              run: |
+                  echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
+                  echo "PORT=3000" >> .env
+                  # add other necessary environment variables here, if needed
+
+            - name: Build and Run Containers
+              run: |
+                  # Stops old version (if exists) and cleans orphans volumes from API
+                  docker compose -f docker-compose.api.yml down --remove-orphans
+
+                  # Starts the new version build the image from scratch (-build) in background (-d)
+                  docker compose -f docker-compose.api.yml up --build -d
+
+            - name: Run Prisma Migrations
+              run: |
+                  # Executes migrations inside the container the was build just before
+                  docker exec slowpace-api npx prisma migrate deploy

@@ -1,0 +1,17 @@
+services:
+  slowpace-api:
+    build:
+      context: .
+      dockerfile: sslowpace-api
+    container_name: slowpace-api
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    networks:
+      - slowpace-network
+
+networks:
+  slowpace-network:
+    external: true
