@@ -32,7 +32,7 @@ const nextConfig: NextConfig = {
             value: `
               default-src 'self'; 
               script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.com; 
-              connect-src 'self' ${isDev ? "http://localhost:3333 ws://localhost:3333" : ""} https://slowpace-web.onrender.com https://slowpace-web.vercel.app https://*.vercel-analytics.com; 
+              connect-src 'self' ${isDev ? "http://localhost:3333 ws://localhost:3333" : ""} https://slowpace-web.onrender.com https://slowpace-api-tunnel.loca.lt https://slowpace-web.vercel.app https://*.vercel-analytics.com; 
               img-src 'self' data: blob:; 
               style-src 'self' 'unsafe-inline'; 
               object-src 'none'; 
