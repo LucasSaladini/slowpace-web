@@ -17,12 +17,13 @@ export async function POST(request: Request) {
 
         const contentType = response.headers.get('content-type');
         let data: any = {};
+
         if (contentType && contentType.includes('application/json')) {
             data = await response.json();
         } else {
             const textError = await response.text();
             return NextResponse.json(
-                { message: `Resposta inesperada do servidor: ${textError.substring(0, 100)}` },
+                { message: `Resposta inesperada: ${textError.substring(0, 100)}` },
                 { status: response.status }
             );
         }
@@ -37,7 +38,6 @@ export async function POST(request: Request) {
         const nextResponse = NextResponse.json({ user: data.user }, { status: 200 });
 
         const setCookieHeader = response.headers.get('set-cookie');
-
         if (setCookieHeader) {
             nextResponse.headers.append('Set-Cookie', setCookieHeader);
         } else {
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
 
     } catch (error: any) {
         return NextResponse.json(
-            { message: 'Erro interno no Next.js BFF', error: error.message },
+            { message: 'Erro interno no BFF', error: error.message },
             { status: 500 }
         );
     }

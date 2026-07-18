@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 
-async function handleRequest(request: Request, { params }: { params: { path: string[] } }) {
+async function handleRequest(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
     try {
-        const apiPath = params.path.join('/');
+        const resolvedParams = await params;
+        const apiPath = resolvedParams.path.join('/');
+
         const searchParams = new URL(request.url).search;
         const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://slowpace-api-tunnel.loca.lt'}/api/${apiPath}${searchParams}`;
 
