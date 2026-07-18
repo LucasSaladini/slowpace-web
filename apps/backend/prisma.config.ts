@@ -1,7 +1,10 @@
 import { defineConfig } from '@prisma/config';
 import * as dotenv from 'dotenv';
+import * as fs from 'fs';
 
-dotenv.config();
+if (fs.existsSync('.env')) {
+  dotenv.config();
+}
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',
