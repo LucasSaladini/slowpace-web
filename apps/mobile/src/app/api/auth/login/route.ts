@@ -4,15 +4,28 @@ export async function POST(request: Request) {
     try {
         const body = await request.json();
 
-        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'}/auth/login`;
+        const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'https://slowpace-api-tunnel.loca.lt'}/auth/login`;
 
         const response = await fetch(apiUrl, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'bypass-tunnel-reminder': 'true'
+            },
             body: JSON.stringify(body),
         });
 
-        const data = await response.json();
+        const contentType = response.headers.get('content-type');
+        let data: any = {};
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const textError = await response.text();
+            return NextResponse.json(
+                { message: `Resposta inesperada do servidor: ${textError.substring(0, 100)}` },
+                { status: response.status }
+            );
+        }
 
         if (!response.ok) {
             return NextResponse.json(
