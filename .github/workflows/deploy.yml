@@ -20,13 +20,11 @@ jobs:
 
             - name: Build and Run Containers
               run: |
-                  # Stops old version (if exists) and cleans orphans volumes from API
                   docker compose -f docker-compose.api.yml down --remove-orphans
-
-                  # Starts the new version build the image from scratch (-build) in background (-d)
                   docker compose -f docker-compose.api.yml up --build -d
+                  sleep 5
 
             - name: Run Prisma Migrations
               run: |
                   # Executes migrations inside the container the was build just before
-                  docker exec -e NODE_OPTIONS="--max-old-space-size=512" slowpace-api npx prisma migrate deploy
+                  docker exec slowpace-api npx prisma migrate deploy
