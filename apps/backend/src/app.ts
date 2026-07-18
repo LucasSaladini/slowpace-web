@@ -34,7 +34,7 @@ export const buildApp = async () => {
         },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+        allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'bypass-tunnel-reminder']
     });
 
     app.register(authRoutes, { prefix: '/auth' });
