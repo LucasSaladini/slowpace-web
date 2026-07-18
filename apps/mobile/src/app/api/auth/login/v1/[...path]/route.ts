@@ -13,6 +13,8 @@ async function handleRequest(request: Request, { params }: { params: Promise<{ p
         const headers = new Headers();
         headers.set('Content-Type', 'application/json');
         headers.set('bypass-tunnel-reminder', 'true');
+        headers.set('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
+        headers.set('Referer', 'https://slowpace-web.vercel.app/');
         if (token) {
             headers.set('Cookie', token);
         }
