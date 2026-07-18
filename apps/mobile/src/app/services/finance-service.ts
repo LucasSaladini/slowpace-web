@@ -1,4 +1,4 @@
-import { createTransactionSchema } from "@/lib/finance-schema"; 
+import { createTransactionSchema } from "@/lib/finance-schema";
 import axios from "axios";
 import { parseCookies } from "nookies";
 import z from "zod";
@@ -6,8 +6,11 @@ import z from "zod";
 const api = axios.create({
     baseURL: process.env.NODE_ENV === 'development'
         ? 'http://localhost:3333'
-        : 'https://slowpace-web.onrender.com',
-    withCredentials: true
+        : (process.env.NEXT_PUBLIC_API_URL || 'https://slowpace-api-tunnel.loca.lt'),
+    withCredentials: true,
+    headers: {
+        'bypass-tunnel-reminder': 'true',
+    }
 });
 
 api.interceptors.request.use(config => {
@@ -40,7 +43,7 @@ export const financeService = {
     async createTransaction(data: CreateTransactionInput): Promise<Transaction> {
         const response = await api.post('/api/finance/transactions', data);
         const transaction = response.data;
-        
+
         if (transaction && transaction.amount > data.amount) {
             transaction.amount = transaction.amount / 100;
         }

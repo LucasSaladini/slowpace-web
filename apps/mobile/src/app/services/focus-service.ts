@@ -5,8 +5,11 @@ import { parseCookies } from "nookies";
 const api = axios.create({
     baseURL: process.env.NODE_ENV === 'development'
         ? 'http://localhost:3333'
-        : 'https://slowpace-web.onrender.com',
-    withCredentials: true
+        : (process.env.NEXT_PUBLIC_API_URL || 'https://slowpace-api-tunnel.loca.lt'),
+    withCredentials: true,
+    headers: {
+        'bypass-tunnel-reminder': 'true',
+    }
 });
 
 api.interceptors.request.use(config => {

@@ -2,21 +2,24 @@ import axios from "axios";
 import { parseCookies } from "nookies";
 
 const api = axios.create({
-    baseURL: process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3333'
-        : 'https://slowpace-web.onrender.com',
-    withCredentials: true
+  baseURL: process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3333'
+    : (process.env.NEXT_PUBLIC_API_URL || 'https://slowpace-api-tunnel.loca.lt'),
+  withCredentials: true,
+  headers: {
+    'bypass-tunnel-reminder': 'true',
+  }
 });
 
 api.interceptors.request.use(config => {
-    const cookies = parseCookies();
-    const token = cookies['slowpace.token'];
+  const cookies = parseCookies();
+  const token = cookies['slowpace.token'];
 
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
 
-    return config;
+  return config;
 })
 
 export interface StardustHobby {
@@ -80,7 +83,7 @@ export const hobbyService = {
   },
 
   async addSession(data: SessionData) {
-    const response = await api.post('/api/hobbies/sessions', data );
+    const response = await api.post('/api/hobbies/sessions', data);
     return response.data;
   },
 
