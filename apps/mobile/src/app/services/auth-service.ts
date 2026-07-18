@@ -1,16 +1,7 @@
 import axios from "axios";
 import { parseCookies, destroyCookie } from "nookies";
 import { AuthData } from "../lib/auth-schema";
-
-const api = axios.create({
-    baseURL: process.env.NODE_ENV === 'development'
-        ? 'http://localhost:3333'
-        : (process.env.NEXT_PUBLIC_API_URL || 'https://slowpace-api-tunnel.loca.lt'),
-    withCredentials: true,
-    headers: {
-        'bypass-tunnel-reminder': 'true',
-    }
-});
+import { api } from "./api";
 
 api.interceptors.request.use((config) => {
     const cookies = parseCookies();
