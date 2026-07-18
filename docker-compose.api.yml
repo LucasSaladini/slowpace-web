@@ -1,14 +1,14 @@
 services:
   slowpace-api:
     build:
-      context: .
-      dockerfile: slowpace-api
+      context: ./apps/backend
+      dockerfile: Dockerfile
     container_name: slowpace-api
     restart: always
     ports:
       - "3000:3000"
     env_file:
-      - .env
+      - ./apps/backend/.env
     networks:
       - slowpace-network
 
