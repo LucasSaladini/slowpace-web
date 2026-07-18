@@ -21,10 +21,8 @@ jobs:
               run: |
                   docker compose -f docker-compose.api.yml down --remove-orphans
                   docker compose -f docker-compose.api.yml up --build -d
-                  sleep 5
+                  sleep 20
 
             - name: Run Prisma Migrations
-              env:
-                  DATABASE_URL: ${{ secrets.DATABASE_URL }}
               run: |
-                  docker exec -w /usr/src/app -e DATABASE_URL="$DATABASE_URL" slowpace-api npx tsx node_modules/prisma/build/index.js migrate deploy
+                  docker exec -w /usr/src/app slowpace-api npx tsx node_modules/prisma/build/index.js migrate deploy
