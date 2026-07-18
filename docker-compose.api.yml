@@ -2,7 +2,7 @@ services:
   slowpace-api:
     build:
       context: .
-      dockerfile: sslowpace-api
+      dockerfile: slowpace-api
     container_name: slowpace-api
     restart: always
     ports:
