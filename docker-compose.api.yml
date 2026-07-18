@@ -6,7 +6,7 @@ services:
     container_name: slowpace-api
     restart: always
     ports:
-      - "3000:3000"
+      - "3333:3333"
     environment:
       - DATABASE_URL
       - JWT_SECRET
