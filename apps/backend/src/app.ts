@@ -11,6 +11,12 @@ export const buildApp = async () => {
 
     app.register(fastifyCookie, {
         secret: process.env.COOKIE_SECRET,
+        parseOptions: {
+            path: '/',
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+        }
     });
 
     app.register(cors, {

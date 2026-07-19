@@ -2,6 +2,10 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import jwt from 'jsonwebtoken';
 
 export async function authMiddleware(request: FastifyRequest, reply: FastifyReply) {
+  console.log('--- DEBUG AUTH ---');
+  console.log('Cookies recebidos:', request.cookies);
+  console.log('Authorization header:', request.headers.authorization);
+
   try {
     const token = request.headers.authorization?.replace('Bearer ', '')
       || request.cookies['slowpace.token'];
@@ -20,6 +24,7 @@ export async function authMiddleware(request: FastifyRequest, reply: FastifyRepl
     request.user = { sub: decoded.sub };
 
   } catch (err) {
+    console.log('FALHA: Erro no JWT verify', err);
     return reply.status(401).send({ message: 'Sessão inválida ou expirada' });
   }
 }
