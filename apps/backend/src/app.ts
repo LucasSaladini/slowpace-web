@@ -7,7 +7,7 @@ import { financeRoutes } from './routes/finance-routes';
 import { focusTaskRoutes } from './routes/focus-routes';
 
 export const buildApp = async () => {
-    const app = Fastify({ logger: true });
+    const app = Fastify({ logger: true, trustProxy: true });
 
     app.register(fastifyCookie, {
         secret: process.env.COOKIE_SECRET,
