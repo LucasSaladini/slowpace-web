@@ -55,40 +55,40 @@ export interface Session {
 
 export const hobbyService = {
   async getStats(): Promise<DashboardStats> {
-    const response = await api.get('/api/hobbies/stats');
+    const response = await api.get('/hobbies/stats');
     return response.data;
   },
 
   async create(data: CreateHobbyData) {
-    const response = await api.post('/api/hobbies', data);
+    const response = await api.post('/hobbies', data);
     return response.data;
   },
 
   async update(id: string, data: Partial<CreateHobbyData>) {
-    const response = await api.put(`/api/hobbies/${id}`, data);
+    const response = await api.put(`/hobbies/${id}`, data);
     return response.data;
   },
 
   async delete(id: string) {
-    await api.delete(`/api/hobbies/${id}`);
+    await api.delete(`/hobbies/${id}`);
   },
 
   async addSession(data: SessionData) {
-    const response = await api.post('/api/hobbies/sessions', data);
+    const response = await api.post('/hobbies/sessions', data);
     return response.data;
   },
 
   async getHistory(): Promise<Session[]> {
-    const response = await api.get('/api/hobbies/sessions/history');
+    const response = await api.get('/hobbies/sessions/history');
     return response.data;
   },
 
   async togglePause(): Promise<{ isPaused: boolean }> {
-    const response = await api.patch('/api/hobbies/settings/pause', {});
+    const response = await api.patch('/hobbies/settings/pause', {});
     return response.data;
   },
 
   async completeTour(): Promise<void> {
-    await api.patch('/api/hobbies/settings/tour');
+    await api.patch('/hobbies/settings/tour');
   }
 };

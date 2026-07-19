@@ -25,23 +25,23 @@ export interface FocusTask {
 
 export const focusService = {
     async getAll(): Promise<FocusTask[]> {
-        const response = await api.get('/api/focus');
+        const response = await api.get('/focus');
         return response.data;
     },
 
     async create(title: string): Promise<FocusTask> {
         const validated = createFocusSchema.parse({ title });
 
-        const response = await api.post('/api/focus', { title: validated.title });
+        const response = await api.post('/focus', { title: validated.title });
         return response.data;
     },
 
     async update(id: string, data: Partial<FocusTask>): Promise<FocusTask> {
-        const response = await api.put(`/api/focus/${id}`, data);
+        const response = await api.put(`/focus/${id}`, data);
         return response.data;
     },
 
     async delete(id: string): Promise<void> {
-        await api.delete(`/api/focus/${id}`);
+        await api.delete(`/focus/${id}`);
     }
 };

@@ -27,12 +27,12 @@ export type CreateTransactionInput = TransactionZodProps;
 
 export const financeService = {
     async getTransactions(): Promise<Transaction[]> {
-        const response = await api.get('/api/finance/transactions');
+        const response = await api.get('/finance/transactions');
         return response.data;
     },
 
     async createTransaction(data: CreateTransactionInput): Promise<Transaction> {
-        const response = await api.post('/api/finance/transactions', data);
+        const response = await api.post('/finance/transactions', data);
         const transaction = response.data;
 
         if (transaction && transaction.amount > data.amount) {
@@ -43,7 +43,7 @@ export const financeService = {
     },
 
     async updateTransaction(id: string, data: CreateTransactionInput): Promise<Transaction> {
-        const response = await api.put(`/api/finance/transactions/${id}`, data);
+        const response = await api.put(`/finance/transactions/${id}`, data);
 
         const transaction = response.data;
         if (transaction && transaction.amount > data.amount) {
@@ -54,6 +54,6 @@ export const financeService = {
     },
 
     async deleteTransaction(id: string): Promise<void> {
-        await api.delete(`/api/finance/transactions/${id}`);
+        await api.delete(`/finance/transactions/${id}`);
     }
 };
