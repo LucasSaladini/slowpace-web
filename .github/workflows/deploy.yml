@@ -19,10 +19,14 @@ jobs:
                   COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
                   FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
               run: |
-                  docker compose -f docker-compose.api.yml down --remove-orphans
-                  docker compose -f docker-compose.api.yml up --build -d
+                  docker compose -f docker-compose.yml down --remove-orphans
+                  
+                  docker compose -f docker-compose.yml up --build -d
+                  
                   sleep 20
 
             - name: Run Prisma Migrations
+              env:
+                  DATABASE_URL: ${{ secrets.DATABASE_URL }}
               run: |
-                  docker exec -w /usr/src/app slowpace-api npx tsx node_modules/prisma/build/index.js migrate deploy
+                  docker exec -e DATABASE_URL="${{ secrets.DATABASE_URL }}" slowpace-api npx prisma migrate deploy

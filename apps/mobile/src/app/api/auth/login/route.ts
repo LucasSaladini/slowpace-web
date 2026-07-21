@@ -12,7 +12,7 @@ export async function POST(request: Request) {
                 'Content-Type': 'application/json',
                 'bypass-tunnel-reminder': 'true',
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-                'Referer': 'https://slowpace-web.vercel.app/'
+                'Referer': `${process.env.NEXT_PUBLIC_API_URL || 'https://slowpace.duckdns.org'}/`
             },
             body: JSON.stringify(body),
         });

@@ -2,8 +2,6 @@ import type { NextConfig } from "next";
 import withPWAInit from "@ducanh2912/next-pwa";
 
 const isDev = process.env.NODE_ENV === "development";
-// O IP da sua VPS (ajuste se mudar)
-const VPS_URL = "http://192.168.15.90:3333";
 
 const withPWA = withPWAInit({
   dest: "public",
@@ -15,12 +13,13 @@ const withPWA = withPWAInit({
   workboxOptions: {
     skipWaiting: true,
     clientsClaim: true,
-    navigateFallbackDenylist: [/^\/auth/, /vercel\.com/],
+    navigateFallbackDenylist: [/^\/auth/],
   },
   publicExcludes: ["!manifest.json", "!*.woff2", "!iconss/**"],
 });
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   transpilePackages: ["@slowpace/ui", "lucide-react"],
   reactCompiler: true,
   turbopack: {},
@@ -33,12 +32,12 @@ const nextConfig: NextConfig = {
             key: "Content-Security-Policy",
             value: `
               default-src 'self'; 
-              script-src 'self' 'unsafe-eval' 'unsafe-inline' https://vercel.com https://va.vercel-scripts.com; 
-              connect-src 'self' ${isDev ? "http://localhost:3000 ws://localhost:3000 http://localhost:3333" : ""} ${VPS_URL} https://slowpace-web.onrender.com https://slowpace-api-tunnel.loca.lt https://slowpace-web.vercel.app https://*.vercel-analytics.com; 
+              script-src 'self' 'unsafe-eval' 'unsafe-inline'; 
+              connect-src 'self' ${isDev ? "http://localhost:3000 ws://localhost:3000 http://localhost:3333" : ""} https://slowpace.duckdns.org; 
               img-src 'self' data: blob: https://images.unsplash.com; 
               style-src 'self' 'unsafe-inline'; 
               object-src 'none'; 
-              manifest-src 'self' https://vercel.com https://*.vercel.app;
+              manifest-src 'self';
             `.replace(/\s{2,}/g, " ").trim()
           },
           { key: "X-Content-Type-Options", value: "nosniff" },

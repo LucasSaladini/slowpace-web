@@ -32,9 +32,8 @@ export const buildApp = async () => {
 
             const sanitizedOrigin = origin ? origin.replace(/\/$/, "") : '';
 
-            if (!origin || allowedOrigins.includes(sanitizedOrigin) || /slowpace-web.*\.vercel\.app$/.test(sanitizedOrigin)) {
+            if (!origin || allowedOrigins.includes(sanitizedOrigin)) {
                 cb(null, true);
-                return;
             }
             cb(new Error('Not allowed by CORS'), false);
         },

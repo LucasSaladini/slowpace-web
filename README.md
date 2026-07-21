@@ -1,73 +1,53 @@
 # SlowPace 🌿
 
-## 📌 Project Charter
+## 📌 Sobre o Projeto
+O SlowPace é um web app "anti-streak" projetado para entusiastas de hobbies e pessoas neurodivergentes. Diferente de ferramentas de produtividade saturadas que geram ansiedade através de gatilhos de punição, o SlowPace oferece um ambiente de "Arquitetura da Calma", focado na autorregulação, na redução da carga cognitiva e na valorização do processo contínuo em vez da performance exaustiva.
 
-### Título e Problema
+## 🏗️ Arquitetura e Engenharia
+O projeto foi estruturado com foco em escalabilidade, manutenibilidade e resiliência, utilizando padrões de desenvolvimento de nível corporativo:
 
-**SlowPace**. A maioria dos rastreadores de hábitos e ferramentas de produtividade utiliza gatilhos de pressão, como os streaks (sequência de dias), e interfaces saturadas de notificações que geram ansiedade e a sensação de "falha" em caso de inatividade
-. O SlowPace resolve isso oferecendo uma interface acolhedora e "anti-streak", transformando a gestão de hobbies em um momento de descompressão, sem punições ou cobranças
+- **Clean Architecture**: Desacoplamento rigoroso entre camadas de interface, aplicação e domínio, permitindo a evolução do sistema sem acúmulo de dívida técnica.
 
-### Público-Alvo e Objetivo
+- **Domain-Driven Design (DDD)**: Modelagem estratégica focada na experiência do usuário e gestão de tempo, garantindo que a lógica de negócio reflita necessidades reais.
 
-O foco são entusiastas de hobbies e pessoas neurodivergentes (como portadores de TDAH) que buscam autorregulação e um refúgio da "produtividade tóxica"
-. O objetivo é criar um web app low-stimulus focado no prazer do processo, permitindo o registro de evolução pessoal de forma estável e segura.
+- **Resiliência e Segurança**:
 
-### Equipe e Papéis
+    - Arquitetura preparada para ambientes distribuídos com suporte a trustProxy.
 
-- **Product Owner / Scrum Master / Desenvolvedor**: Lucas Saladini Toledo Veiga
-- \_Responsável pela visão do produto, gestão do backlog via GitHub Projects e implementação técnica completa (Full Stack).
+    - Segurança em camadas com autenticação via JWT, hashing com BCrypt e conformidade com padrões modernos de cookies (SameSite=None, Secure).
 
-### Recursos e Ferramentas (Tech Stack)
+    - Camada de persistência otimizada com Prisma ORM sobre PostgreSQL.
 
-- **Frontend**: Next.js (React) com Tailwind CSS.
-- **Backend**: Node.js com Fastify e Prisma ORM.
-- **Banco de Dados**: PostgreSQL.
-- **Segurança**: Autenticação via JWT e Hashing de senhas com BCrypt.
-- **Infraestrutura**: Deploy automatizado via Vercel.
+## 📊 Arquitetura do Sistema
+```mermaid
+graph TD
+    User((Usuário)) -->|Interface Calmante| UI[Frontend: Next.js]
+    UI -->|API Gateway / Tunneling| API[Backend: Fastify]
+    
+    subgraph Core ["Domain Core"]
+        direction TB
+        Auth[Autenticação & Sessão]
+        Logic[Business Logic / Entities]
+    end
+    
+    API --> Auth
+    API --> Logic
+    Logic -->|ORM Layer| Prisma[Prisma ORM]
+    Prisma --> DB[(PostgreSQL)]
+```
 
-### Métricas de Sucesso
+## 🚀 Tech Stack
+- **Frontend**: Next.js (React), Tailwind CSS, Shadcn/ui.
 
-- **Técnica**: Aplicação publicada na Vercel com integração funcional e segura ao banco de dados
-- **Funcional**: Ciclo completo de cadastro, login e registro de atividades operacionais.
-- **Impacto**: Implementação da "Stardust View", um sistema de valorização do esforço acumulado que elimina a paralisia por perfeccionismo.
+- **Backend**: Node.js, Fastify.
 
----
+- **Database**: PostgreSQL, Prisma ORM.
 
-## 👤 Personas
+- **Infrastructure**: Docker, Container-based deployment.
 
-1. **Alex Oliveira (Neurodivergente)**: Possui alta sensibilidade sensorial e lida mal com a sensação de "falha" causada por aplicativos de streak tradicionais. Busca o hobby para autorregulação.
-2. **Beatriz Santos (Neurotípica)**: Profissional organizada que sofre com o burnout da gamificação da vida. Deseja um "diário" para sentir que teve vida além do trabalho, sem métricas de performance.
+## 👥 Personas
+O SlowPace foi desenvolvido pensando em:
 
----
+- Pessoas Neurodivergentes (TDAH/TEA): Que sofrem com a sobrecarga sensorial de apps tradicionais.
 
-## 🚀 User Stories Finalizadas (v1.1.0)
-
-Todas as 8 User Stories planejadas foram integralmente implementadas:
-
-- **US01 - Autenticação**: Cadastro e login seguros com JWT e BCrypt para garantir a privacidade dos dados.
-- **US02 - Gestão de Hobbies**: Cadastro de até 5 atividades com sugestão de tons pastéis para evitar sobrecarga cognitiva.
-- **US03 - Registro de Prática**: Log de tempo dedicado com suporte a lançamentos retroativos e mensagens acolhedoras.
-- **US04 - Dashboard Stardust**: Visualização de impacto baseada na soma total de horas dedicadas, sem contadores de sequência.
-- **US05 - Botão de Pausa**: Ativa um estado de repouso visual (sépia/grayscale) e oculta lembretes para evitar culpa.
-- **US06 - Timeline de Memórias**: Histórico cronológico contínuo que pula dias sem registros, eliminando a visão de "lacunas" no progresso.
-- **US07 - Acessibilidade de Tema**: Opções de temas Claro, Suave (Soft Dark) e Sépia para reduzir a fadiga sensorial.
-- **US08 - Onboarding Tour**: Guia inicial explicativo para novos usuários, com persistência de estado no banco de dados.
-
----
-
-## 🎨 Identidade Visual: "Quiet Morning"
-
-A paleta de cores foi desenhada para promover calma e reduzir o cansaço visual:
-
-- **Background**: Off-Black (#1E2022) e Warm Paper (#F5F2ED).
-- **Acentos**: Sage Green (#A8B7AB) e Muted Sand (#D4A373).
-- **Validação**: Soft Periwinkle (#B8C0FF).
-
----
-
-## 🛠️ Status Técnico e Links
-
-- **Ambiente de Produção**: [slowpace-web.vercel.app](https://slowpace-web.vercel.app)
-- **Quadro Kanban**: [GitHub Projects - Sprint 0 & 1](https://github.com/users/LucasSaladini/projects/3/views/1)
-- **Última Release**: [v1.1.0 - Arquitetura do Calma.](https://github.com/LucasSaladini/slowpace-web/releases/tag/v1.1.0)
-- **Registro de Atividade**: O projeto conta com 41 commits realizados de forma incremental utilizando múltiplas branches para organização.Branch [main](https://github.com/LucasSaladini/slowpace-web/commits/main/)
+- Profissionais em Burnout: Que buscam um refúgio para registrar o valor do seu tempo sem métricas tóxicas de produtividade.
