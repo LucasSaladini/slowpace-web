@@ -14,15 +14,18 @@ jobs:
 
             - name: Build and Run Containers
               env:
+                  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+                  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+                  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
                   DATABASE_URL: ${{ secrets.DATABASE_URL }}
                   JWT_SECRET: ${{ secrets.JWT_SECRET }}
                   COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
                   NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
                   FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
               run: |
-                  docker compose -f docker-compose.yml down --remove-orphans
+                  docker compose -f /home/master/infra/docker-compose.yml down --remove-orphans
                   
-                  docker compose -f docker-compose.yml up --build -d
+                  docker compose -f /home/master/infra/docker-compose.yml up --build -d
                   
                   sleep 20
 
