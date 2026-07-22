@@ -7,8 +7,10 @@ services:
     restart: always
     ports:
       - "3333:3333"
-    env_file:
-      - ./apps/backend/.env
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
+      - COOKIE_SECRET=${COOKIE_SECRET}
     networks:
       - slowpace-network
 
@@ -20,8 +22,9 @@ services:
     restart: always
     ports:
       - "3000:3000"
-    env_file:
-      - ./apps/mobile/.env.local
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - FRONTEND_URL=${FRONTEND_URL}
     networks:
       - slowpace-network
 
