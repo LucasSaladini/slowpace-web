@@ -1,4 +1,25 @@
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: slowpace-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - slowpace-network
+    # Adicionado Healthcheck para testar se o Postgres está pronto para conexões
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   api:
     build:
       context: ./actions-runner/_work/slowpace-web/slowpace-web/apps/backend
@@ -12,8 +33,10 @@ services:
       - COOKIE_SECRET=${COOKIE_SECRET}
     expose:
       - "3333"
+    # Garante que a API só sobe *depois* que o Postgres estiver totalmente saudável
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - slowpace-network
 
@@ -31,6 +54,23 @@ services:
       - "3000"
     networks:
       - slowpace-network
+
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    container_name: slowpace-nginx
+    restart: always
+    ports:
+      - '80:80'
+      - '443:443'
+      - '81:81'
+    volumes:
+      - ./data/nginx:/data
+      - ./data/letsencrypt:/etc/letsencrypt
+    networks:
+      - slowpace-network
+
+volumes:
+  postgres_data:
 
 networks:
   slowpace-network:
