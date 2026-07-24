@@ -1,0 +1,24 @@
+# Dockerfile.dev para o Frontend (Next.js) - Ambiente de Desenvolvimento Local
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Instala dependências globais úteis para o ambiente de desenvolvimento, se necessário
+RUN apk add --no-cache libc6-compat
+
+# Copia apenas os arquivos de dependência primeiro para aproveitar o cache do Docker
+COPY package.json package-lock.json* ./
+
+# Instala todas as dependências (incluindo devDependencies)
+RUN npm install
+
+# Copia o restante do código fonte (será sobrescrito pelo volume do docker-compose em tempo de execução, mas é bom ter como base)
+COPY . .
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Executa o servidor de desenvolvimento do Next.js com suporte a hot-reload
+CMD ["npm", "run", "dev"]

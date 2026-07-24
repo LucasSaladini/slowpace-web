@@ -146,3 +146,6 @@ vite.config.ts.timestamp-*
 # Prisma
 /prisma/dev.db
 /prisma/dev.db-journal
+
+# NGINX
+/data

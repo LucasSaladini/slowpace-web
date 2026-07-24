@@ -1,0 +1,26 @@
+# Dockerfile.dev para o Backend - Ambiente de Desenvolvimento Local
+FROM node:20-alpine
+
+WORKDIR /usr/src/app
+
+# Instala dependências do sistema necessárias para compilação ou ferramentas nativas se houver
+RUN apk add --no-cache libc6-compat
+
+# Copia os arquivos de dependência e schema do prisma primeiro para aproveitar o cache
+COPY package*.json ./
+COPY prisma ./prisma/
+COPY prisma.config.ts ./ 
+
+# Instala todas as dependências (incluindo devDependencies)
+RUN npm ci
+
+# Gera o Prisma Client com base no schema
+RUN npx prisma generate
+
+# Copia o restante do código fonte (será sobrescrito pelo volume do docker-compose)
+COPY . .
+
+EXPOSE 3333
+
+# Executa o servidor em modo watch (hot-reload) usando o tsx watch
+CMD ["npx", "tsx", "watch", "src/server.ts"]
