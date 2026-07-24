@@ -3,7 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { authSchema, AuthData } from '@/app/lib/auth-schema';
-import { authService } from '@/app/services/auth-service';
+import { api } from '@/app/services/api';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2, Mail, Lock, UserPlus, LogIn } from 'lucide-react';
@@ -21,25 +21,17 @@ export default function LoginPage() {
     const onSubmit = async (data: AuthData) => {
         setError('');
         try {
-            if (isLogin) {
-                const res = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data),
-                });
-
-                const responseData = await res.json();
-
-                if (!res.ok) {
-                    throw new Error(responseData.message || 'Falha no login');
-                }
-
-                router.push('/dashboard');
-            } else {
-                await authService.signUp(data);
+            if (!isLogin) {
+                await api.post('/auth/signup', data);
             }
+
+            await api.post('/auth/login', data);
+
+            router.push('/dashboard');
+            router.refresh();
+
         } catch (err: any) {
-            setError(err.message || 'Erro ao conectar ao servidor');
+            setError(err.response?.data?.message || err.message || 'Erro ao conectar ao servidor');
         }
     };
 

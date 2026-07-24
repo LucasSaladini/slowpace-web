@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
             value: `
               default-src 'self'; 
               script-src 'self' 'unsafe-eval' 'unsafe-inline'; 
-              connect-src 'self' ${isDev ? "http://localhost:3000 ws://localhost:3000 http://localhost:3333" : ""} https://slowpace.duckdns.org; 
+              connect-src 'self' ${isDev ? "http://localhost:3000 ws://localhost:3000 http://localhost:3333" : ""}; 
               img-src 'self' data: blob: https://images.unsplash.com; 
               style-src 'self' 'unsafe-inline'; 
               object-src 'none'; 

@@ -27,13 +27,15 @@ export const buildApp = async () => {
                 'http://127.0.0.1:3000',
                 'http://localhost:3002',
                 'http://127.0.0.1:3002',
+                'http://localhost:3003',
+                'http://127.0.0.1:3003',
                 frontendUrl
             ].filter(Boolean) as string[];
 
             const sanitizedOrigin = origin ? origin.replace(/\/$/, "") : '';
 
             if (!origin || allowedOrigins.includes(sanitizedOrigin)) {
-                cb(null, true);
+                return cb(null, true);
             }
             cb(new Error('Not allowed by CORS'), false);
         },
@@ -42,10 +44,16 @@ export const buildApp = async () => {
         allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'bypass-tunnel-reminder']
     });
 
-    app.register(authRoutes, { prefix: '/auth' });
+    app.register(authRoutes, { prefix: '/api/auth' });
     app.register(hobbyRoutes, { prefix: '/api/hobbies' });
     app.register(financeRoutes, { prefix: '/api/finance' });
     app.register(focusTaskRoutes, { prefix: '/api/focus' });
+
+    app.get('/api/debug-routes', async () => {
+            return {
+                rotasRegistradas: app.printRoutes()
+            };
+        });
 
     return app;
 };
