@@ -6,6 +6,13 @@ import { prisma } from "../src/db/database";
 dotenv.config();
 
 async function main() {
+    const existingUserCount = await prisma.user.count();
+
+    if (existingUserCount > 0) {
+        console.log('⚡ O banco de dados já possui dados cadastrados. O seed foi ignorado para preservar seus registros.');
+        return;
+    }
+
     console.log('🌱 Limpando o banco de dados antes de iniciar o seed....');
 
     await prisma.transaction.deleteMany();

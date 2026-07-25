@@ -3,8 +3,19 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../db/database';
 import { signInSchema, signUpSchema } from '../schemas/auth-schema';
+import z from 'zod';
+import crypto from 'crypto';
+import { sendResetPasswordEmail } from '../utils/mail';
 
-const isProduction = process.env.NODE_ENV === 'production';
+const getCookieOptions = (request: FastifyRequest) => {
+    const isSecure = request.protocol === 'https'; 
+    return {
+        path: '/',
+        httpOnly: true,
+        secure: isSecure,
+        sameSite: isSecure ? ('none' as const) : ('lax' as const)
+    };
+};
 
 export const authController = {
     async signUp(request: FastifyRequest, reply: FastifyReply) {
@@ -42,16 +53,9 @@ export const authController = {
             const token = jwt.sign({ sub: user.id }, secret, { expiresIn: '24h' });
 
             return reply
-                .setCookie('slowpace.token', token, {
-                    path: '/',
-                    httpOnly: true,
-                    secure: isProduction,
-                    sameSite: isProduction ? 'none' : 'lax'
-                })
+                .setCookie('slowpace.token', token, getCookieOptions(request))
                 .status(201)
-                .send({
-                    user: { id: user.id, email: user.email }
-                });
+                .send({ user: { id: user.id, email: user.email } });
         } catch (err) {
             request.log.error({
                 userId: request.user?.sub || createdUserId,
@@ -92,16 +96,9 @@ export const authController = {
             const token = jwt.sign({ sub: user.id }, secret, { expiresIn: '24h' });
 
             return reply
-                .setCookie('slowpace.token', token, {
-                    path: '/',
-                    httpOnly: true,
-                    secure: isProduction,
-                    sameSite: isProduction ? 'none' : 'lax'
-                })
+                .setCookie('slowpace.token', token, getCookieOptions(request))
                 .status(200)
-                .send({
-                    user: { id: user.id, email: user.email }
-                });
+                .send({ user: { id: user.id, email: user.email } });
         } catch (error) {
             request.log.error({
                 userId: request.user?.sub,
@@ -117,14 +114,116 @@ export const authController = {
         const isProduction = process.env.NODE_ENV === 'production';
 
         return reply
-            .clearCookie('slowpace.token', {
-                path: '/',
-                httpOnly: true,
-                secure: isProduction,
-                sameSite: isProduction ? 'none' : 'lax'
-            })
+            .clearCookie('slowpace.token', getCookieOptions(request))
             .status(200)
             .send({ message: "Sessão encerrada com sucesso." });
+    },
+
+    async forgotPassword(request: FastifyRequest, reply: FastifyReply) {
+        const forgotPasswordBodySchema = z.object({
+            email: z.string('E-mail inválido')
+        });
+
+        const parseResult = forgotPasswordBodySchema.safeParse(request.body);
+
+        if (!parseResult.success) {
+            return reply.status(400).send({ message: "Dados inválidos." });
+        }
+
+        const { email } = parseResult.data;
+
+        try {
+            const user = await prisma.user.findUnique({ where: { email } });
+
+            if (user) {
+                const resetToken = crypto.randomUUID();
+                const resetTokenExpiresAt = new Date(Date.now() + 3600000);
+
+                await prisma.user.update({
+                    where: { id: user.id },
+                    data: {
+                        resetToken,
+                        resetTokenExpiresAt,
+                    }
+                });
+
+                await sendResetPasswordEmail(email, resetToken);
+            }
+
+            return reply.status(200).send({
+                message: 'Se o e-mail estiver cadastrado, você receberá as instruções de recuperação em instantes.',
+            });
+        } catch (err) {
+            request.log.error({
+                action: 'AUTH_FORGOT_PASSWORD_ERROR',
+                error: err instanceof Error ? err.message : err,
+                path: request.url
+            });
+            return reply.status(500).send({ message: "Erro ao processar solicitação de recuperação de senha." });
+        }
+    },
+
+    async resetPassword(request: FastifyRequest, reply: FastifyReply) {
+        const resetPasswordBodySchema = z.object({
+            token: z.uuid('Token inválido'),
+            password: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres')
+        });
+
+        const parseResult = resetPasswordBodySchema.safeParse(request.body);
+
+        if (!parseResult.success) {
+            return reply.status(400).send({ message: "Dados inválidos.", errors: parseResult.error.format() });
+        }
+
+        const { token, password } = parseResult.data;
+
+        try {
+            const user = await prisma.user.findFirst({
+                where: {
+                    resetToken: token,
+                    resetTokenExpiresAt: {
+                        gt: new Date()
+                    }
+                }
+            });
+
+            if (!user) {
+                return reply.status(400).send({ message: 'Token inválido ou expirado.' });
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                    password: hashedPassword,
+                    resetToken: null,
+                    resetTokenExpiresAt: null
+                }
+            });
+
+            const secret = process.env.JWT_SECRET;
+
+            if(!secret) throw new Error("JWT_SECRET não configurado");
+
+            const tokenJwt = jwt.sign({ sub: user.id }, secret, { expiresIn: '24h' });
+
+            return reply
+                .setCookie('slowpace.token', tokenJwt, getCookieOptions(request))
+                .status(200)
+                .send({
+                    message: 'Senha redefinida com sucesso!',
+                    token: tokenJwt,
+                    user: { id: user.id, email: user.email }
+                });
+        } catch (err) {
+            request.log.error({
+                action: 'AUTH_RESET_PASSWORD_ERROR',
+                error: err instanceof Error ? err.message : err,
+                path: request.url
+            });
+            return reply.status(500).send({ message: "Erro ao redefinir a senha." });
+        }
     },
 
     async completeTour(request: FastifyRequest, reply: FastifyReply) {

@@ -6,11 +6,12 @@ import { authSchema, AuthData } from '@/app/lib/auth-schema';
 import { api } from '@/app/services/api';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, Mail, Lock, UserPlus, LogIn } from 'lucide-react';
-import { setCookie } from 'nookies';
+import { Loader2, Mail, Lock, UserPlus, LogIn, ArrowLeft, KeyRound } from 'lucide-react';
 
 export default function LoginPage() {
     const [isLogin, setIsLogin] = useState(true);
+    const [isForgotPassword, setIsForgotPassword] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
     const [error, setError] = useState('');
     const router = useRouter();
 
@@ -20,12 +21,22 @@ export default function LoginPage() {
 
     const onSubmit = async (data: AuthData) => {
         setError('');
+        setSuccessMessage('');
+
         try {
-            if (!isLogin) {
-                await api.post('/auth/signup', data);
+            if (isForgotPassword) {
+                const response = await api.post('auth/forgot-password', { email: data.email });
+                
+                setSuccessMessage(response.data.message || 'Instruções enviadas para o e-mail.');
+                
+                return;
             }
 
-            await api.post('/auth/login', data);
+            if (!isLogin) {
+                await api.post('auth/signup', data);
+            }
+
+            await api.post('auth/login', data);
 
             router.push('/dashboard');
             router.refresh();
@@ -43,10 +54,10 @@ export default function LoginPage() {
             >
                 <div className="mb-10 text-center space-y-2">
                     <h1 className="text-xl font-light tracking-[0.2em] text-zinc-400 uppercase">
-                        SlowPace / <span className="text-zinc-100">{isLogin ? 'Login' : 'Cadastro'}</span>
+                        SlowPace / <span className="text-zinc-100">{isForgotPassword ? 'Recuperar' : (isLogin ? 'Login' : 'Cadastro')}</span>
                     </h1>
                     <p className="text-[10px] font-bold tracking-[0.3em] text-zinc-500 uppercase">
-                        {isLogin ? 'Retome seu cultivo' : 'Inicie sua constelação'}
+                        {isForgotPassword ? 'Redefinição de acesso' : (isLogin ? 'Retome seu cultivo' : 'Inicie sua constelação')}
                     </p>
                 </div>
                 <div className="space-y-5">
@@ -64,26 +75,36 @@ export default function LoginPage() {
                             </p>
                         )}
                     </div>
-                    <div className="group relative">
-                        <Lock className="absolute left-3 top-3.5 h-4 w-4 text-zinc-600 group-focus-within:text-zinc-400 transition-colors" />
-                        <input
-                            {...register('password')}
-                            type="password"
-                            placeholder="Senha"
-                            className={`w-full py-3 pl-10 pr-4 bg-zinc-950 border rounded-2xl text-zinc-100 placeholder:text-zinc-600 text-sm transition-all outline-none focus:ring-1 focus:ring-zinc-700 ${errors.password ? 'border-red-900/50' : 'border-zinc-800 group-hover:border-zinc-700'
-                                }`}
-                        />
-                        {errors.password && (
-                            <p className="text-[10px] text-red-400 mt-1.5 ml-2 uppercase tracking-tight">
-                                {errors.password.message}
-                            </p>
-                        )}
-                    </div>
+                    {!isForgotPassword && (
+                        <div className="group relative">
+                            <Lock className="absolute left-3 top-3.5 h-4 w-4 text-zinc-600 group-focus-within:text-zinc-400 transition-colors" />
+                            <input
+                                {...register('password')}
+                                type="password"
+                                placeholder="Senha"
+                                className={`w-full py-3 pl-10 pr-4 bg-zinc-950 border rounded-2xl text-zinc-100 placeholder:text-zinc-600 text-sm transition-all outline-none focus:ring-1 focus:ring-zinc-700 ${errors.password ? 'border-red-900/50' : 'border-zinc-800 group-hover:border-zinc-700'
+                                    }`}
+                            />
+                            {errors.password && (
+                                <p className="text-[10px] text-red-400 mt-1.5 ml-2 uppercase tracking-tight">
+                                    {errors.password.message}
+                                </p>
+                            )}
+                        </div>
+                    )}
+
                     {error && (
                         <div className="p-3 text-[10px] text-center font-bold text-red-200 bg-red-950/20 border border-red-900/40 rounded-xl animate-in fade-in zoom-in duration-300 uppercase tracking-widest">
                             {error}
                         </div>
                     )}
+
+                    {successMessage && (
+                        <div className="p-3 text-[10px] text-center font-bold text-emerald-200 bg-emerald-950/20 border border-emerald-900/40 rounded-xl animate-in fade-in zoom-in duration-300 uppercase tracking-widest">
+                            {successMessage}
+                        </div>
+                    )}
+
                     <button
                         type="submit"
                         disabled={isSubmitting}
@@ -93,21 +114,55 @@ export default function LoginPage() {
                             <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                             <>
-                                {isLogin ? <LogIn size={14} /> : <UserPlus size={14} />}
-                                {isLogin ? 'Entrar' : 'Criar Conta'}
+                                {isForgotPassword ? <KeyRound size={14} /> : (isLogin ? <LogIn size={14} /> : <UserPlus size={14} />)}
+                                {isForgotPassword ? 'Enviar Instruções' : (isLogin ? 'Entrar' : 'Criar Conta')}
                             </>
                         )}
                     </button>
-                    <button
-                        type="button"
-                        onClick={() => {
-                            setIsLogin(!isLogin);
-                            setError('');
-                        }}
-                        className="w-full text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 hover:text-zinc-200 transition-all pt-4 cursor-pointer"
-                    >
-                        {isLogin ? 'Não possui uma conta? Cadastre-se' : 'Já possui uma conta? Entre aqui'}
-                    </button>
+
+                    <div className="space-y-2 pt-4">
+                        {isForgotPassword ? (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsForgotPassword(false);
+                                    setError('');
+                                    setSuccessMessage('');
+                                }}
+                                className="w-full text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 hover:text-zinc-200 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                            >
+                                <ArrowLeft size={12} /> Voltar para o login
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setIsLogin(!isLogin);
+                                        setError('');
+                                        setSuccessMessage('');
+                                    }}
+                                    className="w-full text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-500 hover:text-zinc-200 transition-all cursor-pointer"
+                                >
+                                    {isLogin ? 'Não possui uma conta? Cadastre-se' : 'Já possui uma conta? Entre aqui'}
+                                </button>
+
+                                {isLogin && (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsForgotPassword(true);
+                                            setError('');
+                                            setSuccessMessage('');
+                                        }}
+                                        className="w-full text-[10px] font-medium uppercase tracking-[0.2em] text-zinc-600 hover:text-zinc-400 transition-all pt-1 cursor-pointer"
+                                    >
+                                        Esqueceu sua senha?
+                                    </button>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
             </form>
         </div>
