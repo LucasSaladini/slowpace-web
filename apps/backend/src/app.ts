@@ -11,12 +11,6 @@ export const buildApp = async () => {
 
     app.register(fastifyCookie, {
         secret: process.env.COOKIE_SECRET,
-        parseOptions: {
-            path: '/',
-            httpOnly: true,
-            sameSite: 'none',
-            secure: true,
-        }
     });
 
     app.register(cors, {
@@ -48,12 +42,6 @@ export const buildApp = async () => {
     app.register(hobbyRoutes, { prefix: '/api/hobbies' });
     app.register(financeRoutes, { prefix: '/api/finance' });
     app.register(focusTaskRoutes, { prefix: '/api/focus' });
-
-    app.get('/api/debug-routes', async () => {
-            return {
-                rotasRegistradas: app.printRoutes()
-            };
-        });
 
     return app;
 };

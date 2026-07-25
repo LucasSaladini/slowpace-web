@@ -12,7 +12,7 @@ services:
     networks:
       - slowpace-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-slowpace}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-master_user} -d ${POSTGRES_DB:-slowpace_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -35,7 +35,7 @@ services:
         condition: service_healthy
     networks:
       - slowpace-network
-    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npx tsx watch src/server.ts"
+    command: sh -c "npx prisma generate && npx prisma migrate deploy && npx prisma db seed && npx tsx watch src/server.ts"
 
   web:
     build:
