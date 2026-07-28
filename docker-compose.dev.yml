@@ -1,14 +1,22 @@
 services:
   postgres:
-    image: postgres:15-alpine
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile.postgres
     container_name: slowpace-postgres
     restart: always
     env_file:
       - ./apps/backend/.env.postgres
     ports:
       - "5433:5432"
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_preload_libraries=pg_cron"
+      - "-c"
+      - "cron.database_name=slowpace_db"
     volumes:
-      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./apps/backend/src/db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     networks:
       - slowpace-network
