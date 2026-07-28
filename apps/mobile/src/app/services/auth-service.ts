@@ -59,6 +59,23 @@ export const authService = {
         return response.data;
     },
 
+    async changePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
+        const response = await api.patch('/auth/change-password', { currentPassword, newPassword, confirmPassword });
+        return response.data;
+    },
+
+    async deleteAccount(email: string) {
+        const response = await api.delete('/auth/delete-account', { 
+            data: { email }
+        });
+        return response.data;
+    },
+
+    async getProfile() {
+        const response = await api.get('/auth/get-user');
+        return response.data;
+    },
+
     async logout() {
         try {
             await api.post('/auth/logout');
