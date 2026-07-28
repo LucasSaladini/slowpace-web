@@ -83,6 +83,25 @@ export const authController = {
                 return reply.status(401).send({ message: "E-mail ou senha incorretos." });
             }
 
+            if (!user.isActive && user.deletedAt) {
+                const sevenDaysInMs = 7 * 24 * 60 * 60 * 1000;
+                const timeElapsed = Date.now() - new Date(user.deletedAt).getTime();
+
+                if (timeElapsed > sevenDaysInMs) {
+                    await prisma.user.delete({ where: { id: user.id } });
+
+                    return reply.status(401).send({ message: "Esta conta foi permanentemente excluída após o período de inatividade." });
+                } else {
+                    await prisma.user.update({
+                        where: { id: user.id },
+                        data: {
+                            isActive: true,
+                            deletedAt: null
+                        }
+                    });
+                }
+            }
+
             const isPasswordValid = await bcrypt.compare(password, user.password);
 
             if (!isPasswordValid) {
@@ -223,6 +242,130 @@ export const authController = {
                 path: request.url
             });
             return reply.status(500).send({ message: "Erro ao redefinir a senha." });
+        }
+    },
+
+    async changePassword(request: FastifyRequest, reply: FastifyReply) {
+        const userId = request.user?.sub;
+
+        if (!userId) {
+            return reply.status(401).send({ message: "Não autorizado" });
+        }
+
+        const { currentPassword, newPassword, confirmPassword } = request.body as {
+            currentPassword: string;
+            newPassword: string;
+            confirmPassword: string;
+        };
+
+        if (newPassword !== confirmPassword) {
+            return reply.status(400).send({ message: "As senhas não coincidem" });
+        }
+
+        const user = await prisma.user.findUnique({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            return reply.status(404).send({ message: "Usuário não encontrado" });
+        }
+
+        const isPasswordValid = await bcrypt.compare(currentPassword, user.password);
+
+        if (!isPasswordValid) {
+            return reply.status(400).send({ message: "A senha atual está incorreta" });
+        }
+
+        try {
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+            await prisma.user.update({
+                where: { id: userId },
+                data: { password: hashedPassword }
+            });
+
+            return reply.status(200).send({ message: "Senha alterada com sucesso" });
+
+        } catch (err) {
+            request.log.error({
+                action: 'AUTH_CHANGE_PASSWORD_ERROR',
+                error: err instanceof Error ? err.message : err,
+                path: request.url
+            });
+
+            return reply.status(500).send({ message: "Erro ao alterar a senha" });
+        }
+    },
+
+    async deleteAccount(request: FastifyRequest, reply: FastifyReply) {
+        const userId = request.user.sub;
+
+        if (!userId) {
+            return reply.status(401).send({ message: "Não autorizado" });
+        }
+
+        const { email } = request.body as { email: string };
+
+        try {
+            const user = await prisma.user.findUnique({
+                where: { id: userId }
+            });
+
+            if (!user) {
+                return reply.status(404).send({ message: "Usuário não encontrado" });
+            }
+
+            if (user.email !== email) {
+                return reply.status(400).send({ message: "O e-mail informado está incorreto" });
+            }
+
+            await prisma.user.update({
+                where: { id: userId },
+                data: { 
+                    isActive: false,
+                    deletedAt: new Date(),
+                    updatedAt: new Date()
+                }
+            });
+
+            return reply.status(200).send({ message: "Conta desativada com sucesso. Ela será excluída permanentemente após 7 dias se não houver novo login." });
+        } catch (err) {
+            request.log.error({
+                action: 'AUTH_DELETE_ACCOUNT_ERROR',
+                error: err instanceof Error ? err.message : err,
+                path: request.url
+            });
+
+            return reply.status(500).send({ message: "Erro ao excluir a conta" });
+        }
+    },
+
+    async getProfile(request: FastifyRequest, reply: FastifyReply) {
+        const userId = request.user.sub;
+
+        if (!userId) {
+            return reply.status(401).send({ message: "Usuário não encontrado." });
+        }
+
+        try {
+            const user = await prisma.user.findUnique({
+                where: { id: userId },
+                select: { email: true}
+            });
+
+            if (!user) {
+                return reply.status(404).send({ message: "Usuário não encontrado no banco de dados." });
+            }
+
+            return reply.status(200).send();
+        } catch (err) {
+            request.log.error({
+                userId,
+                action: 'USER_GET_INFORMATION',
+                error: err instanceof Error ? err.message : err,
+                path: request.url
+            });
+            return reply.status(500).send({ message: "Erro ao encontrar o usuário." });
         }
     },
 

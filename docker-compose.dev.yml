@@ -8,6 +8,7 @@ services:
     ports:
       - "5433:5432"
     volumes:
+      - ./backend/db/init.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
     networks:
       - slowpace-network
