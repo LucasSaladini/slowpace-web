@@ -1,17 +1,4 @@
-import axios from "axios";
-import { parseCookies } from "nookies";
 import { api } from "./api";
-
-api.interceptors.request.use(config => {
-  const cookies = parseCookies();
-  const token = cookies['slowpace.token'];
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
-})
 
 export interface StardustHobby {
   id: string;

@@ -59,7 +59,7 @@ export function Settings({ isOpen, onClose }: SettingsProps) {
             setIsLoadingDelete(true);
             await authService.deleteAccount(deleteEmail);
             await authService.logout();
-            router.push('/sign-in');
+            router.push('/login');
         } catch (err: any) {
             setDeleteError(err.response?.data?.message || 'Erro ao desativar a conta.');
             setIsLoadingDelete(false);

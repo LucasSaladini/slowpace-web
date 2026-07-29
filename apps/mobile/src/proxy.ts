@@ -6,6 +6,24 @@ export function proxy(request: NextRequest) {
 
   if (token === 'undefined' || token === 'null' || !token) {
     token = undefined
+  } else {
+    const parts = token.split('.')
+    const isJwtValid = parts.length === 3 && parts[0].length > 0 && parts[1].length > 0 && parts[2].length > 0
+    
+    if (!isJwtValid) {
+      token = undefined
+    } else {
+      try {
+        const payloadJson = Buffer.from(parts[1], 'base64').toString('utf-8')
+        const payload = JSON.parse(payloadJson)
+
+        if (payload.exp && Date.now() >= payload.exp * 1000) {
+          token = undefined
+        }
+      } catch (e) {
+        token = undefined
+      } 
+    }
   }
 
   const { pathname } = request.nextUrl
@@ -22,15 +40,19 @@ export function proxy(request: NextRequest) {
   const isDashboardPage = pathname.startsWith('/dashboard')
   const isRoot = pathname === '/'
 
+  const response = NextResponse.next()
+
   if (!token && (isDashboardPage || isRoot)) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    const redirectResponse = NextResponse.redirect(new URL('/login', request.url))
+    redirectResponse.cookies.delete('slowpace.token')
+    return redirectResponse
   }
 
   if (token && (isLoginPage || isRoot)) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  return NextResponse.next()
+  return response
 }
 
 export const config = {
